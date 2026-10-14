@@ -516,13 +516,29 @@ function pref(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function togM(){MON=!MON;pref('hm',MON?1:0);$('mu').textContent=MON?'🎵':'🔇';if(MON)music()}
 function togS(){SON=!SON;pref('hs',SON?1:0);$('sn').textContent=SON?'🔊':'🔕'}
 function greet(){var t=new Date().toISOString().slice(5,10),h='Namaste, '+P.n+' 👋';if(P.b&&P.b.slice(5)==t)h+=' 🎂 Happy Birthday!';$('hi').textContent=h}
-function login(){var n=$('nm').value.trim(),b=$('db').value;if(n.length<2){toast(trs('Naam daalo'));return}if(!b||b>iso(new Date())){toast(trs('Janm tithi chuno'));return}P={n:n,b:b};pref('hp',JSON.stringify(P));$('lo').style.display='none';greet();chime();music()}
+function login(){
+ var n=$('nm').value.trim(),b=$('db').value;
+ if(n.length<2){toast(trs('Naam daalo'));return}
+ if(!b||b>iso(new Date())){toast(trs('Janm tithi chuno'));return}
+ var profile={n:n,b:b},saved=false;
+ try{
+   localStorage.setItem('hp',JSON.stringify(profile));
+   saved=localStorage.getItem('hp')===JSON.stringify(profile);
+ }catch(e){saved=false}
+ if(!saved){
+   toast('Profile save nahi hua. Chrome mein site storage allow karo; app data clear mat karo.');
+   return;
+ }
+ P=profile;
+ $('lo').style.display='none';
+ greet();chime();music();
+}
 function logout(){if(PIN){$('pi').value='';$('pl').style.display='flex';return}toast('First-time setup complete. Aapka naam aur DOB isi device par saved hai. DOB page dobara nahi khulega.')}
 document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('button,select'))click();if(P)music()},true);
 document.addEventListener('visibilitychange',function(){if(AC){if(document.hidden)AC.suspend();else if(MON)AC.resume()}});
 for(var k=9;k<T.length;k++){if(!$('p'+k)){var e0=document.createElement('div');e0.id='p'+k;e0.className='hide';$('p8').parentNode.appendChild(e0)}}
 var rc=applyRec();
-thApply();tabs();draw();avatar();$('lg2').value=LG;if(P&&PIN)$('pl').style.display='flex';setTimeout(function(){if(P){var s0=startMsg();if(s0)toast(s0)}},900);$('mu').textContent=MON?'🎵':'🔇';$('sn').textContent=SON?'🔊':'🔕';if(P){$('lo').style.display='none';greet()}$('lg').value=LG;ob.observe(document.body,{childList:true,characterData:true,subtree:true});tr();
+thApply();tabs();draw();avatar();$('lg2').value=LG;if(P&&PIN)$('pl').style.display='flex';setTimeout(function(){if(P){var s0=startMsg();if(s0)toast(s0)}},900);$('mu').textContent=MON?'🎵':'🔇';$('sn').textContent=SON?'🔊':'🔕';if(P&&P.n&&P.b){$('lo').style.display='none';greet()}else{$('lo').style.display='flex'}$('lg').value=LG;ob.observe(document.body,{childList:true,characterData:true,subtree:true});tr();
 // PWA service worker registration (requires HTTPS or localhost)
 if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./sw.js', {scope: './', updateViaCache: 'none'}).catch(function(){})}
 var mpDeferredPrompt=null;
