@@ -45,3 +45,11 @@ In Android Studio, allow Gradle sync, select a device/emulator, then Run. To cre
 - **Offline:** core data is local-first. The PWA shell is cached after the first successful HTTPS load. PDF/Excel libraries use CDN scripts and may need a successful online load before they are available offline.
 - **Accounting/GST:** exports are working bookkeeping aids, not a GST return filing, tax advice, or audited financial statements. Verify totals, classifications and GST treatment with your CA.
 - **Existing storage:** data remains in each browser profile's localStorage. Keep JSON backups before switching devices, clearing browser data, or upgrading.
+
+
+## PWA install button and logo
+- The app uses the supplied `money-pilot-logo.png` artwork, resized as `icon-192.png` and `icon-512.png`.
+- `index.html` includes an **Install App** button. It uses the browser's install prompt when available and gives manual install instructions otherwise.
+- To install as a PWA, host the project on HTTPS (GitHub Pages is suitable for static hosting). Opening `index.html` directly as a local file will not enable PWA installation.
+- On Android Chrome, open the HTTPS site and tap **Install App**. If the browser does not offer a prompt, use Chrome's ⋮ menu → **Install app** / **Add to Home screen**.
+- The app remains local-first; PWA install does not itself add cloud sync or server security.

@@ -1,5 +1,5 @@
-const CACHE = 'money-pilot-bi2-v1';
-const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const CACHE = 'money-pilot-pwa-v2';
+const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './money-pilot-logo.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });

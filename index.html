@@ -2,7 +2,7 @@
 <html lang="hi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Money Pilot</title>
-<meta name="theme-color" content="#6366f1"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#062a61"><meta name="apple-mobile-web-app-title" content="Money Pilot"><link rel="apple-touch-icon" href="./icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="manifest.json">
 <style>
 :root{color-scheme:light;--L:90%;--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#6b7280;--bd:#e3e6ea;--ac:#2563eb;--gr:#16a34a;--rd:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--L:14%;--bg:#111418;--card:#1b1f26;--tx:#eef0f3;--mu:#9aa3af;--bd:#2c323b;--ac:#60a5fa;--gr:#4ade80;--rd:#f87171}}
@@ -44,7 +44,7 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-
 <div class="w">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div style="display:flex;align-items:center;gap:10px"><svg width="42" height="42" viewBox="0 0 64 64"><defs><linearGradient id="l2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#l2)"/><circle cx="34" cy="36" r="17" fill="#fff" fill-opacity=".2"/><text x="34" y="44" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="system-ui">₹</text><path d="M8 22 L32 10 L24 30 Z" fill="#fde68a"/></svg><div><h1 style="margin:0">Money Pilot</h1><div class="k" id="hi"></div></div></div><select id="lg" style="width:auto" onchange="setL(this.value)"><option value="hg">Hinglish</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="or">ଓଡ଼ିଆ</option></select></div>
 <input id="gs" placeholder="🔍 Search..." oninput="gsearch()" style="margin-bottom:10px">
-<div class="ctl"><button id="av" onclick="go(26)" style="margin-right:auto;display:flex;align-items:center;gap:6px"></button><button id="th" onclick="togT()">🌓</button><button id="mu" onclick="togM()">🎵</button><button id="sn" onclick="togS()">🔊</button><button onclick="logout()">Logout</button></div>
+<div class="ctl"><button id="installApp" type="button" onclick="installMoneyPilot()" style="background:#062a61;color:#fff;border-color:#062a61;font-weight:700">⬇ Install App</button><button id="av" onclick="go(26)" style="margin-right:auto;display:flex;align-items:center;gap:6px"></button><button id="th" onclick="togT()">🌓</button><button id="mu" onclick="togM()">🎵</button><button id="sn" onclick="togS()">🔊</button><button onclick="logout()">Logout</button></div>
 <div class="tabs" id="tabs"></div>
 <div id="p0"></div><div id="p1" class="hide"></div><div id="p2" class="hide"></div><div id="p3" class="hide"></div><div id="p4" class="hide"></div><div id="p5" class="hide"></div><div id="p6" class="hide"></div><div id="p7" class="hide"></div><div id="p8" class="hide"></div><div id="p9" class="hide"></div><div id="p10" class="hide"></div><div id="p11" class="hide"></div><div id="p12" class="hide"></div><div id="p13" class="hide"></div><div id="p14" class="hide"></div><div id="p15" class="hide"></div><div id="p16" class="hide"></div><div id="p17" class="hide"></div><div id="p18" class="hide"></div><div id="p19" class="hide"></div><div id="p20" class="hide"></div><div id="p21" class="hide"></div><div id="p22" class="hide"></div><div id="p23" class="hide"></div><div id="p24" class="hide"></div><div id="p25" class="hide"></div><div id="p26" class="hide"></div><div id="p27" class="hide"></div><div id="p28" class="hide"></div><div id="p29" class="hide"></div><div id="p30" class="hide"></div><div id="p31" class="hide"></div><div id="p32" class="hide"></div><div id="p33" class="hide"></div><div id="p34" class="hide"></div><div id="p35" class="hide"></div><div id="p36" class="hide"></div><div id="p37" class="hide"></div><div id="p38" class="hide"></div><div id="p39" class="hide"></div><div id="p40" class="hide"></div><div id="p41" class="hide"></div><div id="p42" class="hide"></div><div id="p43" class="hide"></div><div id="p44" class="hide"></div><div id="p45" class="hide"></div><div id="p46" class="hide"></div><div id="p47" class="hide"></div><div id="p48" class="hide"></div><div id="p49" class="hide"></div><div id="p50" class="hide"></div><div id="p51" class="hide"></div><div id="p52" class="hide"></div><div id="p53" class="hide"></div>
 </div>
@@ -523,5 +523,37 @@ document.addEventListener('visibilitychange',function(){if(AC){if(document.hidde
 for(var k=9;k<T.length;k++){if(!$('p'+k)){var e0=document.createElement('div');e0.id='p'+k;e0.className='hide';$('p8').parentNode.appendChild(e0)}}
 var rc=applyRec();
 thApply();tabs();draw();avatar();$('lg2').value=LG;if(P&&PIN)$('pl').style.display='flex';setTimeout(function(){if(P){var s0=startMsg();if(s0)toast(s0)}},900);$('mu').textContent=MON?'🎵':'🔇';$('sn').textContent=SON?'🔊':'🔕';if(P){$('lo').style.display='none';greet()}$('lg').value=LG;ob.observe(document.body,{childList:true,characterData:true,subtree:true});tr();
+// PWA service worker registration (requires HTTPS or localhost)
 if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./sw.js').catch(function(){})}
+var mpDeferredPrompt=null;
+var mpInstallBtn=document.getElementById('installApp');
+window.addEventListener('beforeinstallprompt',function(ev){
+  ev.preventDefault(); mpDeferredPrompt=ev;
+  if(mpInstallBtn){mpInstallBtn.style.display='inline-block';mpInstallBtn.textContent='⬇ Install App';}
+});
+window.addEventListener('appinstalled',function(){
+  mpDeferredPrompt=null;
+  if(mpInstallBtn){mpInstallBtn.textContent='✓ App Installed';mpInstallBtn.disabled=true;}
+});
+function installMoneyPilot(){
+  if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches){
+    alert('Money Pilot pehle se installed hai!'); return;
+  }
+  if(mpDeferredPrompt){
+    mpDeferredPrompt.prompt();
+    mpDeferredPrompt.userChoice.then(function(choice){
+      if(choice && choice.outcome==='accepted' && mpInstallBtn){mpInstallBtn.textContent='✓ Installing…';}
+      mpDeferredPrompt=null;
+    }).catch(function(){mpDeferredPrompt=null;});
+    return;
+  }
+  var ua=navigator.userAgent||'';
+  if(/iPad|iPhone|iPod/.test(ua) && !window.MSStream){
+    alert('iPhone/iPad par: Safari ka Share button tap karein, phir “Add to Home Screen” choose karein.');
+  } else if(location.protocol==='file:'){
+    alert('Install karne ke liye app ko HTTPS hosting (jaise GitHub Pages) par publish karein, phir Chrome mein open karein.');
+  } else {
+    alert('Agar Install prompt nahi aa raha, Chrome menu (⋮) kholein aur “Install app” ya “Add to Home screen” choose karein. App ko HTTPS par open karna zaroori hai.');
+  }
+}
 </script></body></html>
