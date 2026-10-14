@@ -671,4 +671,8 @@ function installMoneyPilot(){
   }
 }
 </script><div id="mp-splash" aria-label="Money Pilot loading"><img src="./money-pilot-logo.png" alt="Money Pilot logo" onerror="this.style.display='none'"><div class="brand">Money Pilot</div><div class="tag">Your money. Your control.</div><div class="loader"><span></span></div></div><div id="mpv2-tour" role="dialog" aria-modal="true" aria-label="Money Pilot welcome tour"><div class="tour-card"><div class="tour-icon" id="mpv2-tour-icon">✈️</div><h2 id="mpv2-tour-title">Welcome to Money Pilot</h2><p id="mpv2-tour-copy">Your money. Your control.</p><div class="tour-dots" id="mpv2-tour-dots"><span class="tour-dot active"></span><span class="tour-dot"></span><span class="tour-dot"></span></div><div class="tour-actions"><button onclick="mpV2TourSkip()">Skip</button><button class="primary" id="mpv2-tour-next" onclick="mpV2TourNext()">Next →</button></div></div></div>
+<script>
+/* Independent splash failsafe: runs even if the main app script throws. */
+(function(){function hideSplash(){var sp=document.getElementById("mp-splash");if(sp){sp.classList.add("hide");setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp)},450)}}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){setTimeout(hideSplash,3500)},{once:true})}else{setTimeout(hideSplash,3500)}})();
+</script>
 </body></html>
