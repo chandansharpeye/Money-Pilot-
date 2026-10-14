@@ -1,4 +1,4 @@
-const CACHE = 'money-pilot-pwa-v3-income-fix-1';
+const CACHE = 'money-pilot-pwa-v3.1-income-fix-1';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './money-pilot-logo.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
