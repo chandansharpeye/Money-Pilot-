@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="hi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Money Pilot V3.1 — Welcome + Jarvis AI</title>
-<meta name="theme-color" content="#062a61"><meta name="description" content="Money Pilot V3.1 — offline-first finance, accounting and local Jarvis assistant."><meta name="application-name" content="Money Pilot V2"><meta name="apple-mobile-web-app-title" content="Money Pilot"><link rel="apple-touch-icon" href="./icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="./manifest.json">
+<title>Money Pilot V3 — Complete Accounting</title>
+<meta name="theme-color" content="#062a61"><meta name="description" content="Money Pilot V3 — offline-first finance and complete accounting cycle."><meta name="application-name" content="Money Pilot V2"><meta name="apple-mobile-web-app-title" content="Money Pilot"><link rel="apple-touch-icon" href="./icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="./manifest.json">
 <style>
 :root{color-scheme:light;--L:90%;--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#6b7280;--bd:#e3e6ea;--ac:#2563eb;--gr:#16a34a;--rd:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--L:14%;--bg:#111418;--card:#1b1f26;--tx:#eef0f3;--mu:#9aa3af;--bd:#2c323b;--ac:#60a5fa;--gr:#4ade80;--rd:#f87171}}
@@ -47,8 +47,6 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-
 #mpv2-tour .tour-actions{display:flex;gap:10px;margin-top:16px}#mpv2-tour .tour-actions button{flex:1;border:0;border-radius:13px;padding:12px;font-weight:700;cursor:pointer;background:#e2e8f0;color:#172033}#mpv2-tour .tour-actions .primary{background:#2563eb;color:white}
 .mpv2-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}.mpv2-stat{padding:15px;border:1px solid var(--bd);border-radius:16px;background:var(--card)}.mpv2-stat .num{font-size:22px;font-weight:800;margin-top:6px}.mpv2-shortcuts{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px}.mpv2-shortcuts button{border:1px solid var(--bd);border-radius:13px;padding:12px;background:var(--card);color:var(--tx);font-weight:700;cursor:pointer;text-align:left}.mpv2-bar{height:8px;border-radius:10px;background:var(--bd);overflow:hidden;margin:7px 0 12px}.mpv2-bar span{height:100%;display:block;background:linear-gradient(90deg,#2563eb,#10b981);border-radius:10px}
 
-
-#mp-splash{position:fixed;inset:0;z-index:100000;background:radial-gradient(circle at 50% 35%,#174c89 0%,#071b38 52%,#030914 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;transition:opacity .35s ease}#mp-splash.hide{opacity:0;pointer-events:none}#mp-splash img{width:min(46vw,190px);height:min(46vw,190px);object-fit:contain;border-radius:28px;filter:drop-shadow(0 12px 32px #00b8d455)}#mp-splash .brand{font-size:28px;font-weight:850;letter-spacing:.4px;margin-top:18px}#mp-splash .tag{opacity:.8;font-size:13px;margin-top:5px}#mp-splash .loader{width:110px;height:4px;border-radius:99px;background:#ffffff30;margin-top:26px;overflow:hidden}#mp-splash .loader span{display:block;height:100%;width:45%;background:#54e4d0;border-radius:99px;animation:mpslide 1s ease-in-out infinite alternate}@keyframes mpslide{from{transform:translateX(0)}to{transform:translateX(135%)}}
 </style></head><body><div id="lo"><div class="lc"><svg width="72" height="72" viewBox="0 0 64 64"><defs><linearGradient id="l1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#l1)"/><circle cx="34" cy="36" r="17" fill="#fff" fill-opacity=".2"/><text x="34" y="44" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="system-ui">₹</text><path d="M8 22 L32 10 L24 30 Z" fill="#fde68a"/></svg><h2 style="margin:8px 0 2px">Money Pilot</h2><div class="k">Apne paise ka pilot ✈️</div><label>Apna naam</label><input id="nm" placeholder="Naam" autocomplete="name"><label>Janm tithi (DOB)</label><input type="date" id="db"><button class="btn" onclick="login()">Shuru karo</button><div style="margin-top:12px"><select id="lg2" style="width:auto" onchange="setL(this.value)"><option value="hg">Hinglish</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="or">ଓଡ଼ିଆ</option></select></div><p class="k">Aapka naam aur DOB sirf aapke phone ke browser mein save hota hai.</p></div></div>
 <div id="pl" style="display:none"><div class="lc"><h2 style="margin:0 0 6px">🔒 App Lock</h2><div class="k">PIN daalo</div><input type="password" inputmode="numeric" maxlength="4" id="pi" style="text-align:center;font-size:22px;letter-spacing:8px"><button class="btn" onclick="unlock()">Unlock</button><p class="k" style="cursor:pointer" onclick="fg()">PIN bhool gaye?</p><div id="fgb" class="hide"><label>Apni DOB daalo</label><input type="date" id="pd"><button class="btn" onclick="fgOk()">PIN reset karo</button></div></div></div>
 <div id="mn" class="hide" onclick="if(event.target==this)menu()"><div class="mp" id="mp"></div></div>
@@ -103,8 +101,8 @@ $('p2').innerHTML='<div class="card"><label>Month</label><input type="month" val
 '<div class="card"><div class="k">Month-wise summary</div><div class="sc"><table><tr><th>Month</th><th>Income</th><th>Expense</th><th>Profit/Loss</th></tr>'+ms.map(function(m){var x=months[m],q=x.i-x.e;return '<tr><td>'+m+'</td><td>'+f(x.i)+'</td><td>'+f(x.e)+'</td><td class="'+(q>=0?'gr':'rd')+'">'+f(q)+'</td></tr>'}).join('')+'</table></div></div>'}
 function excel(){var a=D.tx.slice().sort(function(x,y){return y.d.localeCompare(x.d)}),txt='Date\tType\tCategory\tNote\tAmount\n'+a.map(function(t){return [t.d,t.t=='i'?'Income':'Expense',t.c,(t.n||'').replace(/\t/g,' '),t.a].join('\t')}).join('\n');
 $('p3').innerHTML='<div class="card"><div class="k">Sab entries (Excel jaisi sheet)</div><div class="sc"><table><tr><th>Date</th><th>Type</th><th>Category</th><th>Note</th><th>Amount</th></tr>'+a.map(function(t){return '<tr><td>'+t.d+'</td><td>'+(t.t=='i'?'Income':'Expense')+'</td><td>'+esc(t.c)+'</td><td>'+esc(t.n)+'</td><td class="'+(t.t=='i'?'gr':'rd')+'">'+t.a+'</td></tr>'}).join('')+'</table></div>'+
-'<button class="btn" onclick="xl()">⬇️ Excel (.xlsx) file save karo</button><button class="btn" onclick="cp()">Copy karo (Excel/Sheets mein paste karo)</button><textarea id="cv" rows="4" class="hide">'+esc(txt)+'</textarea><p class="k" id="ms"></p></div>'}
-function cp(){var t=$('cv');t.className='';t.select();var m='';try{navigator.clipboard.writeText(t.value).then(function(){$('ms').textContent='Copy ho gaya! Ab Excel mein paste karo.'},function(){$('ms').textContent='Upar text select karke manually copy karo.'})}catch(e){$('ms').textContent='Upar text select karke manually copy karo.'}}
+'<button class="btn" onclick="xl()">⬇️ Excel (.xlsx) file save karo</button><button class="btn" onclick="cpExcel()">Copy karo (Excel/Sheets mein paste karo)</button><textarea id="cv" rows="4" class="hide">'+esc(txt)+'</textarea><p class="k" id="ms"></p></div>'}
+function cpExcel(){var t=$('cv');t.className='';t.select();var m='';try{navigator.clipboard.writeText(t.value).then(function(){$('ms').textContent='Copy ho gaya! Ab Excel mein paste karo.'},function(){$('ms').textContent='Upar text select karke manually copy karo.'})}catch(e){$('ms').textContent='Upar text select karke manually copy karo.'}}
 var S={items:[],busy:false,msg:''};
 function prompt2(){return 'These are UPI payment app screenshots (GPay, PhonePe, Paytm, BHIM etc) or photos of shop bills and receipts. Extract every successful transaction or bill (for a bill use the total amount and shop name, as an expense). Reply ONLY with a JSON array, no other text: [{"type":"e" or "i","amount":number,"date":"YYYY-MM-DD","merchant":"name","category":"..."}]. type e = money paid/debited, i = money received/credited. Skip failed or pending ones. Expense categories: '+CATS.e.join(', ')+'. Income categories: '+CATS.i.join(', ')+'. If the year is missing use 2026.'}
 function shrink(file){return createImageBitmap(file).then(function(b){var s=Math.min(1,1400/Math.max(b.width,b.height)),c=document.createElement('canvas');c.width=b.width*s;c.height=b.height*s;c.getContext('2d').drawImage(b,0,0,c.width,c.height);return new Promise(function(ok){c.toBlob(ok,'image/jpeg',0.85)})})}
@@ -121,37 +119,14 @@ catch(e){S.msg='Scan nahi ho paya. Permission allow karke dobara try karo.'}
 S.busy=false;scan()}
 function addSel(){var n=0;S.items.forEach(function(t){if(!t.on)return;var dup=D.tx.some(function(x){return x.d==t.d&&x.a==t.a&&x.t==t.t&&x.n==t.n});if(dup)return;D.tx.push({id:Date.now()+n++,t:t.t,a:t.a,c:t.c,d:t.d,n:t.n});n++});save();chime();S.items=[];S.msg='Entries add ho gayi. Home ya Report mein dekho.';draw()}
 var A={a:'',busy:false};
-function ai(){
- var qs=['Is mahine ka summary do','Kharcha kahan sabse zyada hai?','Rent ₹5000 paid ki journal entry batao','Mujhe saving tips do','Trial balance kya hota hai?'];
- $('p5').innerHTML='<div class="card"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:30px">🤖</div><div><b>Jarvis AI — Money Assistant</b><div class="k">Offline smart assistant · Your data stays on this device</div></div></div><p class="k">Income/expense analysis, savings guidance, accounting concepts aur debit-credit suggestions. Journal entry post karne se pehle verify karo.</p><div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">'+qs.map(function(q){return '<button class="btn sm" style="background:var(--card);color:var(--tx);border:1px solid var(--bd)" data-q="'+esc(q)+'" onclick="ask(this.dataset.q)">'+esc(q)+'</button>'}).join('')+'</div><label>Ask Jarvis</label><textarea id="aq" rows="3" placeholder="Example: Mera is month total expense kitna hai? Ya: office rent 5000 cash paid journal entry"></textarea><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" '+(A.busy?'disabled':'')+' onclick="ask($(\'aq\').value)">'+(A.busy?'Soch raha hoon...':'🤖 Ask Jarvis')+'</button><button class="btn" style="background:#0ea5e9" onclick="jarvisVoiceAI()">🎤 Voice</button><button class="btn" style="background:var(--card);color:var(--tx);border:1px solid var(--bd)" onclick="mpAiClear()">Clear chat</button></div></div>'+(A.a?'<div class="card" style="white-space:pre-wrap;line-height:1.55"><b>Jarvis ka jawab</b>\n\n'+esc(A.a)+'</div>':'')+'<div class="card"><b>AI mode</b><p class="k">Abhi built-in offline reasoning/rule engine active hai; external generative AI service/API key configured nahi hai. Isliye answers supported finance data aur accounting rules par based honge, unrestricted ChatGPT-style answers nahi.</p></div>';
-}
-function mpAiClear(){A.a='';A.busy=false;ai()}
-function mpAiMonth(){var m=iso(new Date()).slice(0,7),a=mt(m),inc=sum(a,'i'),ex=sum(a,'e'),cats={};a.filter(function(x){return x.t==='e'}).forEach(function(x){cats[x.c]=(cats[x.c]||0)+Number(x.a||0)});var keys=Object.keys(cats).sort(function(x,y){return cats[y]-cats[x]});return {m:m,a:a,inc:inc,ex:ex,net:inc-ex,cats:cats,top:keys[0]||'',topAmt:keys.length?cats[keys[0]]:0}}
-function mpAiJournal(q){var amountMatch=q.match(/(?:₹|rs\.?\s*)?([0-9][0-9,]*(?:\.\d{1,2})?)/i),amount=amountMatch?Number(amountMatch[1].replace(/,/g,'')):0;var dr='Expense / relevant account',cr='Cash / Bank',why='Narration ke hisaab se account select karo';
- if(/rent|kiraya/i.test(q)){dr='Rent Expense';cr=/bank|upi|online|transfer/i.test(q)?'Bank':'Cash';why='Rent expense badhta hai (Debit); cash/bank balance ghatta hai (Credit).'}
- else if(/salary|wage|mazdoori|payroll/i.test(q)){dr='Salary Expense';cr=/bank|upi|online/i.test(q)?'Bank':'Cash';why='Salary expense Debit; payment source Credit.'}
- else if(/stationery|books?|pen|office supplies/i.test(q)){dr='Stationery / Office Supplies Expense';cr=/credit|udhaar|later|payable/i.test(q)?'Accounts Payable':(/bank|upi|online/i.test(q)?'Bank':'Cash');why='Office supplies expense/asset policy ke mutabik Debit; supplier ya payment account Credit.'}
- else if(/goods|maal|inventory|stock/i.test(q)&&/purchase|kharid/i.test(q)){dr='Inventory';cr=/credit|udhaar|later/i.test(q)?'Accounts Payable':(/bank|upi|online/i.test(q)?'Bank':'Cash');why='Perpetual inventory mein purchase par Inventory Debit; payment source/supplier Credit.'}
- else if(/sale|sold|bikri/i.test(q)){dr=/credit|udhaar|customer/i.test(q)?'Accounts Receivable':(/bank|upi|online/i.test(q)?'Bank':'Cash');cr='Sales';why='Sale par Cash/Bank ya Receivable Debit aur Sales Credit. Perpetual inventory mein COGS + Inventory ki separate entry bhi chahiye.'}
- else if(/capital|owner invested|business mein paisa/i.test(q)){dr=/bank|upi/i.test(q)?'Bank':'Cash';cr='Capital';why='Business ko paisa milta hai: Cash/Bank Debit, Capital Credit.'}
- else if(/electricity|bijli|internet|water bill|utility/i.test(q)){dr='Utilities Expense';cr=/bank|upi|online/i.test(q)?'Bank':'Cash';why='Utility expense Debit; payment source Credit.'}
- else if(/customer paid|received from customer|customer se mila/i.test(q)){dr=/cash/i.test(q)?'Cash':'Bank';cr='Accounts Receivable';why='Customer ka due kam hota hai: Cash/Bank Debit, Receivable Credit.'}
- return 'Suggested journal entry'+(amount?' for ₹'+amount.toLocaleString('en-IN'):'')+':\nDr. '+dr+(amount?'  ₹'+amount.toLocaleString('en-IN'):'')+'\n    Cr. '+cr+(amount?'  ₹'+amount.toLocaleString('en-IN'):'')+'\n\nReason: '+why+'\n\nImportant: Yeh suggestion hai, posted entry nahi. Account, payment method, GST aur business context verify karke hi save/post karein.'}
-async function ask(q){q=(q||'').trim();if(!q)return;A.busy=true;A.a='';ai();try{
- var question=q.toLowerCase(),z=mpAiMonth(),ans='';
- if(/journal|debit|credit|entry|paid|purchase|purchased|sale|sold|rent|salary|received|kharid|kiraya|maal/i.test(question)&&/(₹|\d|journal|debit|credit|entry|paid|purchase|purchased|sale|sold|rent|salary|received|kharid|kiraya|maal)/i.test(question)) ans=mpAiJournal(q);
- else if(/kharcha|expense|spend|where.*money|kahan.*kharch|costliest|highest spending/i.test(question)){ans='Is month ('+z.m+') recorded expense: '+f(z.ex)+'.\n';if(z.top)ans+='Highest expense category: '+z.top+' — '+f(z.topAmt)+'.\n';ans+='\nTip: category-wise report dekho aur recurring/unnecessary costs compare karo.'}
- else if(/income|earning|salary|sales|bikri/i.test(question)){ans='Is month ('+z.m+') recorded income: '+f(z.inc)+'.\nRecorded expenses: '+f(z.ex)+'.\nSimple net cashflow: '+f(z.net)+'.\n\nYeh personal-finance summary hai; formal accounting profit ke liye accruals, stock aur adjustments chahiye.'}
- else if(/profit|munafa|loss|net|cashflow/i.test(question)){ans='Is month summary ('+z.m+'):\nIncome: '+f(z.inc)+'\nExpenses: '+f(z.ex)+'\nSimple net: '+f(z.net)+'\n\nNote: net cashflow aur accounting profit same zaroori nahi. Inventory, outstanding expenses, depreciation aur tax adjustments result badal sakte hain.'}
- else if(/save|saving|bachat|budget|reduce|kam kar/i.test(question)){var share=z.inc>0?Math.round((z.net/z.inc)*100):0;ans='Saving review:\nIncome: '+f(z.inc)+'\nExpenses: '+f(z.ex)+'\nNet remaining: '+f(z.net)+'\n';if(z.inc>0)ans+='Income ke comparison mein remaining share: '+share+'%.\n';if(z.top)ans+='Sabse pehle '+z.top+' category ('+f(z.topAmt)+') ko review karo.\n';ans+='\nPractical tip: ek realistic monthly limit set karo, weekly review karo, aur essential bills ko priority do.'}
- else if(/trial balance/i.test(question)){ans='Trial Balance ek statement hai jisme har ledger ka debit ya credit balance list hota hai. Total debit aur total credit equal hone chahiye.\n\nEqual hona arithmetical agreement ka check hai; isse har transaction sahi hai, yeh guarantee nahi hoti.'}
- else if(/ledger/i.test(question)){ans='Ledger journal entries ko account-wise group karta hai. Example: Cash ledger mein Cash debit aur Cash credit wali sabhi postings aati hain. Har account ka closing balance nikal kar Trial Balance banane mein use hota hai.'}
- else if(/final account|balance sheet|trading account|profit and loss/i.test(question)){ans='Final accounts ke main parts:\n• Trading Account: gross profit/loss\n• Profit & Loss Account: net profit/loss\n• Balance Sheet: assets, liabilities aur capital\n\nClosing stock, depreciation, outstanding/prepaid items aur tax jaise adjustments sahi tarah include karna zaroori hai.'}
- else if(/hello|hi|namaste|hey/i.test(question)){ans='Namaste! Main Jarvis Money hoon. Tumhare saved transactions ka summary, spending insights, savings tips, accounting concepts aur common debit-credit suggestions de sakta hoon. Try: “Is month expense kitna hai?” ya “Office rent 5000 cash paid journal entry”.'}
- else {ans='Main is offline mode mein tumhari saved finance data aur built-in accounting rules ke basis par help kar sakta hoon.\n\nTry these:\n• Is month expense kitna hai?\n• Highest spending category?\n• ₹5000 office rent cash paid journal entry\n• Trial Balance kya hota hai?\n• Saving tips do\n\nGeneral open-ended answers ke liye secure external AI backend/API setup karna hoga.'}
- A.a=ans;
- }catch(e){A.a='Answer generate nahi ho paya. Sawal ko thoda simple likho.'}A.busy=false;ai()}
-function jarvisVoiceAI(){var SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Voice input is browser-dependent. Type your question instead.');return}var r=new SR();r.lang={hi:'hi-IN',or:'or-IN',en:'en-IN',hg:'hi-IN'}[LG]||'hi-IN';r.onresult=function(e){var q=e.results[0][0].transcript;if($('aq'))$('aq').value=q;ask(q)};r.onerror=function(){toast('Voice input nahi ho paya')};r.start()}
+function ai(){var qs=['Is mahine ka summary do','Kharcha kahan kam kar sakta hoon?','Bachat badhane ke tips do'];$('p5').innerHTML='<div class="card"><div class="k">AI se apne hisab ke baare mein poocho</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+qs.map(function(q){return '<button class="btn sm" style="background:var(--card);color:var(--tx);border:1px solid var(--bd)" onclick="ask(this.textContent)">'+q+'</button>'}).join('')+'</div><label>Apna sawal</label><input id="aq" placeholder="Jaise: kya main loss mein hoon?"><button class="btn" '+(A.busy?'disabled':'')+' onclick="ask($(\'aq\').value)">'+(A.busy?'Soch raha hoon...':'Poocho')+'</button><p class="k">Aapki entries jawab dene ke liye Claude ko bheji jaati hain.</p></div>'+(A.a?'<div class="card" style="white-space:pre-wrap">'+esc(A.a)+'</div>':'')}
+async function ask(q){q=(q||'').trim();if(!q)return;if(!D.tx.length){A.a='Pehle kuch entries add karo, phir main analysis kar paunga.';ai();return}
+A.busy=true;A.a='';ai();
+try{var sm=window.claude&&await claude.use('sample');if(!sm)throw 0;
+var rows=D.tx.slice().sort(function(x,y){return y.d.localeCompare(x.d)}).slice(0,200).map(function(t){return t.d+' '+(t.t=='i'?'income':'expense')+' '+t.a+' '+t.c+' '+(t.n||'')}).join('\n');
+var r=await sm('You are a friendly money assistant inside an expense app. Reply in '+LN[LG]+', short and practical, max 150 words, use only the data below, amounts in rupees. If data is not enough, say so. You are not a licensed financial advisor.\nMonthly saving goal: '+(D.goal||'not set')+'\nToday: '+new Date().toISOString().slice(0,10)+'\nTransactions (date type amount category note):\n'+rows+'\n\nUser question: '+q,{cache:false});A.a=r.text}
+catch(e){A.a='AI abhi jawab nahi de paya. Permission allow karke dobara try karo.'}
+A.busy=false;ai()}
 function iso(x){return x.getFullYear()+'-'+('0'+(x.getMonth()+1)).slice(-2)+'-'+('0'+x.getDate()).slice(-2)}
 function f2(n){return '₹'+(Math.round(n*100)/100).toLocaleString('en-IN')}
 function nv(id){return +($(id).value)||0}
@@ -634,9 +609,15 @@ function logout(){if(PIN){$('pi').value='';$('pl').style.display='flex';return}t
 document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('button,select'))click();if(P)music()},true);
 document.addEventListener('visibilitychange',function(){if(AC){if(document.hidden)AC.suspend();else if(MON)AC.resume()}});
 for(var k=9;k<T.length;k++){if(!$('p'+k)){var e0=document.createElement('div');e0.id='p'+k;e0.className='hide';$('p8').parentNode.appendChild(e0)}}
-var rc=applyRec();
-thApply();tabs();draw();avatar();$('lg2').value=LG;$('pl').style.display='none';setTimeout(function(){var s0=startMsg();if(s0)toast(s0)},900);$('mu').textContent=MON?'🎵':'🔇';$('sn').textContent=SON?'🔊':'🔕';$('lo').style.display='none';$('lg').value=LG;ob.observe(document.body,{childList:true,characterData:true,subtree:true});tr();try{if(localStorage.getItem('mpv2_tour_done')!=='1')setTimeout(mpV2TourOpen,1700)}catch(e){setTimeout(mpV2TourOpen,1700)}
-setTimeout(function(){var sp=document.getElementById('mp-splash');if(sp){sp.classList.add('hide');setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp)},450)}},1350);
+// Startup guard: keep the app usable and expose initialization errors instead of failing silently.
+var rc;
+try { rc=applyRec(); } catch(initErr) { console.error('Money Pilot recurring setup failed:',initErr); }
+try { thApply(); } catch(initErr) { console.error('Money Pilot theme setup failed:',initErr); }
+try { tabs(); draw(); avatar(); } catch(initErr) {
+  console.error('Money Pilot startup failed:',initErr);
+  try { toast('App startup error. Please export/keep your backup and reload.'); } catch(_e) {}
+}
+$('lg2').value=LG;$('pl').style.display='none';setTimeout(function(){var s0=startMsg();if(s0)toast(s0)},900);$('mu').textContent=MON?'🎵':'🔇';$('sn').textContent=SON?'🔊':'🔕';$('lo').style.display='none';$('lg').value=LG;ob.observe(document.body,{childList:true,characterData:true,subtree:true});tr();try{if(localStorage.getItem('mpv2_tour_done')!=='1')setTimeout(mpV2TourOpen,250)}catch(e){setTimeout(mpV2TourOpen,250)}
 // PWA service worker registration (requires HTTPS or localhost)
 if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./sw.js', {scope: './', updateViaCache: 'none'}).catch(function(){})}
 var mpDeferredPrompt=null;
@@ -670,78 +651,5 @@ function installMoneyPilot(){
     alert('Agar Install prompt nahi aa raha, Chrome menu (⋮) kholein aur “Install app” ya “Add to Home screen” choose karein. App ko HTTPS par open karna zaroori hai.');
   }
 }
-</script><div id="mp-splash" aria-label="Money Pilot loading"><img src="./money-pilot-logo.png" alt="Money Pilot logo" onerror="this.style.display='none'"><div class="brand">Money Pilot</div><div class="tag">Your money. Your control.</div><div class="loader"><span></span></div></div><div id="mpv2-tour" role="dialog" aria-modal="true" aria-label="Money Pilot welcome tour"><div class="tour-card"><div class="tour-icon" id="mpv2-tour-icon">✈️</div><h2 id="mpv2-tour-title">Welcome to Money Pilot</h2><p id="mpv2-tour-copy">Your money. Your control.</p><div class="tour-dots" id="mpv2-tour-dots"><span class="tour-dot active"></span><span class="tour-dot"></span><span class="tour-dot"></span></div><div class="tour-actions"><button onclick="mpV2TourSkip()">Skip</button><button class="primary" id="mpv2-tour-next" onclick="mpV2TourNext()">Next →</button></div></div></div>
-<script>
-
-/* Money Pilot language completion layer: English / Hindi / Odia.
-   Keeps original accounting data untouched; translates visible UI text and common dynamic labels. */
-(function(){
- const MP_LANGS={
-  en:{
-   'Dashboard':'Dashboard','Transactions':'Transactions','Income':'Income','Expense':'Expense','Expenses':'Expenses',
-   'Reports':'Reports','Settings':'Settings','Accounts':'Accounts','Budget':'Budget','Savings':'Savings',
-   'Add Transaction':'Add Transaction','Add Income':'Add Income','Add Expense':'Add Expense','Amount':'Amount',
-   'Category':'Category','Date':'Date','Description':'Description','Save':'Save','Cancel':'Cancel','Delete':'Delete',
-   'Edit':'Edit','Search':'Search','Export':'Export','Import':'Import','Monthly Report':'Monthly Report',
-   'Daily Report':'Daily Report','Weekly Report':'Weekly Report','Final Report':'Final Report',
-   'Profit / Bachat':'Profit / Savings','Loss / Nuksan':'Loss','Saving rate':'Saving rate',
-   'Kharcha category-wise':'Expenses by category','Koi kharcha nahi.':'No expenses recorded.',
-   'Month-wise summary':'Monthly summary','Jarvis AI':'Jarvis AI','Ask Jarvis':'Ask Jarvis',
-   'Loading...':'Loading...','Try again':'Try again','Close':'Close','Language':'Language',
-   'English':'English','Hindi':'Hindi','Odia':'Odia','Total Income':'Total Income','Total Expense':'Total Expense',
-   'Net Balance':'Net Balance','Balance':'Balance','Payment Method':'Payment Method','Notes':'Notes',
-   'No data found':'No data found','Welcome':'Welcome','Help':'Help','Home':'Home','Back':'Back',
-   'Add':'Add','Update':'Update','Confirm':'Confirm','Download':'Download','Filter':'Filter'
-  },
-  hi:{
-   'Dashboard':'डैशबोर्ड','Transactions':'लेन-देन','Income':'आय','Expense':'खर्च','Expenses':'खर्चे',
-   'Reports':'रिपोर्ट','Settings':'सेटिंग्स','Accounts':'खाते','Budget':'बजट','Savings':'बचत',
-   'Add Transaction':'लेन-देन जोड़ें','Add Income':'आय जोड़ें','Add Expense':'खर्च जोड़ें','Amount':'राशि',
-   'Category':'श्रेणी','Date':'तारीख','Description':'विवरण','Save':'सेव करें','Cancel':'रद्द करें','Delete':'हटाएँ',
-   'Edit':'बदलें','Search':'खोजें','Export':'एक्सपोर्ट','Import':'इम्पोर्ट','Monthly Report':'मासिक रिपोर्ट',
-   'Daily Report':'दैनिक रिपोर्ट','Weekly Report':'साप्ताहिक रिपोर्ट','Final Report':'पूरी रिपोर्ट',
-   'Profit / Bachat':'लाभ / बचत','Loss / Nuksan':'नुकसान','Saving rate':'बचत दर',
-   'Kharcha category-wise':'श्रेणी के अनुसार खर्च','Koi kharcha nahi.':'कोई खर्च दर्ज नहीं है।',
-   'Month-wise summary':'महीने के अनुसार सारांश','Jarvis AI':'जार्विस AI','Ask Jarvis':'जार्विस से पूछें',
-   'Loading...':'लोड हो रहा है...','Try again':'फिर कोशिश करें','Close':'बंद करें','Language':'भाषा',
-   'English':'अंग्रेज़ी','Hindi':'हिंदी','Odia':'ओड़िया','Total Income':'कुल आय','Total Expense':'कुल खर्च',
-   'Net Balance':'शुद्ध शेष','Balance':'शेष राशि','Payment Method':'भुगतान का तरीका','Notes':'नोट्स',
-   'No data found':'कोई डेटा नहीं मिला','Welcome':'स्वागत है','Help':'मदद','Home':'होम','Back':'वापस',
-   'Add':'जोड़ें','Update':'अपडेट करें','Confirm':'पुष्टि करें','Download':'डाउनलोड','Filter':'फ़िल्टर'
-  },
-  or:{
-   'Dashboard':'ଡ୍ୟାସବୋର୍ଡ','Transactions':'କାରବାର','Income':'ଆୟ','Expense':'ଖର୍ଚ୍ଚ','Expenses':'ଖର୍ଚ୍ଚ',
-   'Reports':'ରିପୋର୍ଟ','Settings':'ସେଟିଂସ୍','Accounts':'ଖାତା','Budget':'ବଜେଟ୍','Savings':'ସଞ୍ଚୟ',
-   'Add Transaction':'କାରବାର ଯୋଡ଼ନ୍ତୁ','Add Income':'ଆୟ ଯୋଡ଼ନ୍ତୁ','Add Expense':'ଖର୍ଚ୍ଚ ଯୋଡ଼ନ୍ତୁ','Amount':'ରାଶି',
-   'Category':'ବର୍ଗ','Date':'ତାରିଖ','Description':'ବିବରଣୀ','Save':'ସଂରକ୍ଷଣ କରନ୍ତୁ','Cancel':'ବାତିଲ୍','Delete':'ଡିଲିଟ୍ କରନ୍ତୁ',
-   'Edit':'ସମ୍ପାଦନା','Search':'ଖୋଜନ୍ତୁ','Export':'ଏକ୍ସପୋର୍ଟ','Import':'ଇମ୍ପୋର୍ଟ','Monthly Report':'ମାସିକ ରିପୋର୍ଟ',
-   'Daily Report':'ଦୈନିକ ରିପୋର୍ଟ','Weekly Report':'ସାପ୍ତାହିକ ରିପୋର୍ଟ','Final Report':'ସମ୍ପୂର୍ଣ୍ଣ ରିପୋର୍ଟ',
-   'Profit / Bachat':'ଲାଭ / ସଞ୍ଚୟ','Loss / Nuksan':'କ୍ଷତି','Saving rate':'ସଞ୍ଚୟ ହାର',
-   'Kharcha category-wise':'ବର୍ଗ ଅନୁସାରେ ଖର୍ଚ୍ଚ','Koi kharcha nahi.':'କୌଣସି ଖର୍ଚ୍ଚ ରେକର୍ଡ ନାହିଁ।',
-   'Month-wise summary':'ମାସ ଅନୁସାରେ ସାରାଂଶ','Jarvis AI':'ଜାରଭିସ୍ AI','Ask Jarvis':'ଜାରଭିସ୍‌କୁ ପଚାରନ୍ତୁ',
-   'Loading...':'ଲୋଡ୍ ହେଉଛି...','Try again':'ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ','Close':'ବନ୍ଦ କରନ୍ତୁ','Language':'ଭାଷା',
-   'English':'ଇଂରାଜୀ','Hindi':'ହିନ୍ଦୀ','Odia':'ଓଡ଼ିଆ','Total Income':'ମୋଟ ଆୟ','Total Expense':'ମୋଟ ଖର୍ଚ୍ଚ',
-   'Net Balance':'ନିଟ୍ ବାକି','Balance':'ବାକି ରାଶି','Payment Method':'ପେମେଣ୍ଟ ପ୍ରକାର','Notes':'ଟିପ୍ପଣୀ',
-   'No data found':'କୌଣସି ତଥ୍ୟ ମିଳିଲା ନାହିଁ','Welcome':'ସ୍ୱାଗତ','Help':'ସହାୟତା','Home':'ହୋମ୍','Back':'ପଛକୁ',
-   'Add':'ଯୋଡ଼ନ୍ତୁ','Update':'ଅପଡେଟ୍ କରନ୍ତୁ','Confirm':'ନିଶ୍ଚିତ କରନ୍ତୁ','Download':'ଡାଉନଲୋଡ୍','Filter':'ଫିଲ୍ଟର୍'
-  }
- };
- const getLang=()=>({hi:'hi',or:'or',en:'en',hg:'hi'}[window.LG]||'hi');
- const originalTrs=window.trs;
- window.trs=function(s){
-   let out=String(s==null?'':s);
-   try{if(typeof originalTrs==='function')out=originalTrs(out)}catch(e){}
-   const dict=MP_LANGS[getLang()]||MP_LANGS.hi;
-   if(getLang()==='en')return out;
-   // Exact phrases first, then conservative replacements for labels within generated HTML/text.
-   if(dict[out.trim()])return out.replace(out.trim(),dict[out.trim()]);
-   Object.keys(dict).sort((a,b)=>b.length-a.length).forEach(k=>{
-     if(k.length>3 && out.includes(k))out=out.split(k).join(dict[k]);
-   });
-   return out;
- };
- window.MoneyPilotTranslations={supported:['en','hi','or'],version:'1.0'};
-})();
-
-</script>
+</script><div id="mpv2-tour" role="dialog" aria-modal="true" aria-label="Money Pilot welcome tour"><div class="tour-card"><div class="tour-icon" id="mpv2-tour-icon">✈️</div><h2 id="mpv2-tour-title">Welcome to Money Pilot</h2><p id="mpv2-tour-copy">Your money. Your control.</p><div class="tour-dots" id="mpv2-tour-dots"><span class="tour-dot active"></span><span class="tour-dot"></span><span class="tour-dot"></span></div><div class="tour-actions"><button onclick="mpV2TourSkip()">Skip</button><button class="primary" id="mpv2-tour-next" onclick="mpV2TourNext()">Next →</button></div></div></div>
 </body></html>
