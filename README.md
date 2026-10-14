@@ -20,10 +20,3 @@ This package contains an offline rule-based assistant, not a connected generativ
 
 ## Privacy/data
 The assistant reads the current browser profile's saved transaction data locally for basic calculations. No transaction data is sent to an AI provider by this offline assistant.
-
-
-## ChatGPT shortcut update (2026-10-14)
-The AI panels now offer a button that opens ChatGPT in a separate browser tab with a suggested prompt. This does not embed the ChatGPT service inside Money Pilot and does not automatically send Money Pilot records. Users should only copy/share financial details they are comfortable sharing.
-
-## Translation status
-English/Hindi/Odia labels are selected by the existing language controls, and the new ChatGPT panel has these three languages. This package does **not** yet provide a verified, complete translation of every screen, report, alert, and form. Review all screens before publishing if full localization is required.
