@@ -1,15 +1,14 @@
 {
-  "id": "./index.html",
-  "name": "Money Pilot",
+  "id": "./",
+  "name": "Money Pilot V2",
   "short_name": "Money Pilot",
-  "description": "Money Pilot business accounting and finance app",
+  "description": "Offline-first personal finance super app",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#062a61",
-  "lang": "en-IN",
   "icons": [
     {
       "src": "./icon-192.png",
