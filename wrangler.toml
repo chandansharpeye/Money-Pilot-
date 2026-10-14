@@ -1,0 +1,6 @@
+name = "money-pilot-jarvis"
+main = "worker.js"
+compatibility_date = "2026-10-14"
+
+[ai]
+binding = "AI"
