@@ -1,0 +1,19 @@
+{
+  "name": "money-pilot-bi2",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Money Pilot Business Intelligence 2.0 Web + Android wrapper",
+  "scripts": {
+    "cap:sync": "cap sync android",
+    "android": "cap open android",
+    "web:serve": "npx http-server www -p 4173 -c-1"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3",
+    "http-server": "^14.1.1"
+  }
+}
