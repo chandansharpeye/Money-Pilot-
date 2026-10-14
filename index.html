@@ -85,7 +85,8 @@ $('p0').innerHTML='<div class="card"><label>Month</label><input type="month" val
 '<div class="card"><div class="k">Recent</div>'+(all.length?all.map(row).join(''):'<p class="k">Abhi koi entry nahi. "Add" tab se shuru karo.</p>')+'</div>'}
 function row(t){return '<div class="row"><div>'+esc(t.c)+(t.n?' · '+esc(t.n):'')+'<small>'+t.d+'</small></div><div><b class="'+(t.t=='i'?'gr':'rd')+'">'+(t.t=='i'?'+':'-')+f(t.a)+'</b> <button class="x" onclick="del('+t.id+')">✕</button></div></div>'}
 function del(id){D.tx=D.tx.filter(function(t){return t.id!=id});save();draw()}
-function add(){$('p1').innerHTML='<div class="card"><div class="seg"><button class="e '+(type=='e'?'on':'')+'" onclick="type=\'e\';add()">Expense</button><button class="i '+(type=='i'?'on':'')+'" onclick="type=\'i\';add()">Income</button></div>'+
+function setAddType(nextType){type=(nextType==='i'?'i':'e');add()}
+function add(){$('p1').innerHTML='<div class="card"><div class="seg"><button class="e '+(type=='e'?'on':'')+'" onclick="setAddType(\'e\')">Expense</button><button class="i '+(type=='i'?'on':'')+'" onclick="setAddType(\'i\')">Income</button></div>'+
 '<label>Amount (₹)</label><input type="number" id="a" inputmode="decimal" placeholder="0"><label>Category</label><select id="c">'+CATS[type].map(function(c){return '<option value="'+c+'">'+c+'</option>'}).join('')+'</select>'+
 '<label>Date</label><input type="date" id="d" value="'+new Date().toISOString().slice(0,10)+'"><label>Note (optional)</label><input id="n" placeholder="Kis liye?">'+
 '<button class="btn" style="background:#0ea5e9" onclick="voice()">🎤 Bolke entry karo</button><button class="btn" onclick="ok()">Save karo</button></div>'}
