@@ -2,7 +2,7 @@
 <html lang="hi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Money Pilot</title>
-<meta name="theme-color" content="#062a61"><meta name="apple-mobile-web-app-title" content="Money Pilot"><link rel="apple-touch-icon" href="./icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#062a61"><meta name="apple-mobile-web-app-title" content="Money Pilot"><link rel="apple-touch-icon" href="./icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="./manifest.json">
 <style>
 :root{color-scheme:light;--L:90%;--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#6b7280;--bd:#e3e6ea;--ac:#2563eb;--gr:#16a34a;--rd:#dc2626;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--L:14%;--bg:#111418;--card:#1b1f26;--tx:#eef0f3;--mu:#9aa3af;--bd:#2c323b;--ac:#60a5fa;--gr:#4ade80;--rd:#f87171}}
@@ -524,7 +524,7 @@ for(var k=9;k<T.length;k++){if(!$('p'+k)){var e0=document.createElement('div');e
 var rc=applyRec();
 thApply();tabs();draw();avatar();$('lg2').value=LG;if(P&&PIN)$('pl').style.display='flex';setTimeout(function(){if(P){var s0=startMsg();if(s0)toast(s0)}},900);$('mu').textContent=MON?'🎵':'🔇';$('sn').textContent=SON?'🔊':'🔕';if(P){$('lo').style.display='none';greet()}$('lg').value=LG;ob.observe(document.body,{childList:true,characterData:true,subtree:true});tr();
 // PWA service worker registration (requires HTTPS or localhost)
-if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./sw.js').catch(function(){})}
+if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./sw.js', {scope: './', updateViaCache: 'none'}).catch(function(){})}
 var mpDeferredPrompt=null;
 var mpInstallBtn=document.getElementById('installApp');
 window.addEventListener('beforeinstallprompt',function(ev){
