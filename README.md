@@ -22,9 +22,23 @@ This package contains an offline rule-based assistant, not a connected generativ
 The assistant reads the current browser profile's saved transaction data locally for basic calculations. No transaction data is sent to an AI provider by this offline assistant.
 
 
-## SMS Transaction Import (PWA)
-- Open Menu → 📩 SMS Transaction Import.
-- Paste a bank transaction SMS or load a plain-text `.txt` file, parse it, review the detected amount/date/type/category, then confirm.
-- This PWA does **not** read or monitor the phone's SMS inbox. Automatic background SMS detection requires a separate native Android implementation and review of applicable SMS permission / Google Play policies.
-- Never paste OTPs, PINs, passwords, or other verification codes.
-- Imported message fingerprints are stored locally to reduce duplicate entries.
+## Money Pilot upgrade pack (local-first)
+
+Added in this update while preserving the existing transaction store and modules:
+- Future Balance Predictor: editable current/opening balance and average net cash-flow projection from the last three completed months. Forecast is an estimate, not bank-synced balance.
+- Savings Challenges: targets, target dates, manual deposits and progress, stored in the active profile data.
+- Smart SMS Import: paste a bank transaction SMS, parse likely amount/type/merchant, review and confirm before saving; duplicate fingerprints are checked and OTP-like messages are rejected.
+- Jarvis voice transaction command: supported browser speech recognition can stage simple income/expense commands; a confirmation prompt is required before adding.
+- App-open lock: passcode hash stored using PBKDF2 in browser storage, optional WebAuthn platform authenticator/device verification where HTTPS and browser/device support it, and lock-on-open/lock after a long background period.
+- Encrypted active-profile backup/restore using PBKDF2 + AES-GCM. The passphrase is not stored; losing it means the encrypted backup cannot be restored.
+
+### Important platform limits
+This source is still a PWA/web app. It cannot automatically read incoming SMS in the background. The SMS panel is a manual paste/import workflow. Native SMS automation needs a real Android project, native SMS receiver/permission flow, Android-side implementation and review of current Google Play SMS/Call Log permission rules before distribution. Do not claim it is enabled in this ZIP.
+
+The app lock is a local privacy gate, not a security boundary against someone who can modify the client code or access browser storage. WebAuthn prompts for device verification and may use biometrics or the device screen lock depending on the Android/browser setup. Strong protection of financial data requires native Android Keystore/biometric APIs and encrypted storage. Keep the Android screen lock enabled and make backups.
+
+### Test after deployment
+1. Back up existing data first.
+2. Deploy over HTTPS, then reload the PWA (if needed, close/reopen it to refresh the service worker cache).
+3. Test passcode lock, optional device verification, encrypted backup/restore with a non-critical profile, forecast opening balance, a savings challenge, SMS import using a sample message, and Jarvis voice command confirmation.
+4. Confirm existing Home, Add, Report, Scan, accounting and invoice modules still work.
