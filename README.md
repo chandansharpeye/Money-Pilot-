@@ -20,3 +20,11 @@ This package contains an offline rule-based assistant, not a connected generativ
 
 ## Privacy/data
 The assistant reads the current browser profile's saved transaction data locally for basic calculations. No transaction data is sent to an AI provider by this offline assistant.
+
+
+## SMS Transaction Import (PWA)
+- Open Menu → 📩 SMS Transaction Import.
+- Paste a bank transaction SMS or load a plain-text `.txt` file, parse it, review the detected amount/date/type/category, then confirm.
+- This PWA does **not** read or monitor the phone's SMS inbox. Automatic background SMS detection requires a separate native Android implementation and review of applicable SMS permission / Google Play policies.
+- Never paste OTPs, PINs, passwords, or other verification codes.
+- Imported message fingerprints are stored locally to reduce duplicate entries.
