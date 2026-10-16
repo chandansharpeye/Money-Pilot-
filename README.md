@@ -71,3 +71,12 @@ Reminders page (Bill / payment reminders) me naya "Notifications" card:
 2. `npx cap sync android`
 3. Android 13+ ke liye `POST_NOTIFICATIONS` aur exact alarm ki permission AndroidManifest me plugin docs ke hisaab se check karo.
 4. Build karke phone me install, Reminders page > "Notification ON karo".
+
+
+## V3.5: Data safety, Trash/Undo, naya Menu
+- **Automatic copy:** har save ke baad data ki copy IndexedDB me banti hai, aur pichhle 7 din ki daily copies rehti hain. localStorage khaali mile to app restore ka option deta hai.
+- **Backup reminder:** 7 din se backup nahi liya to Home par card aata hai. "Backup lo" button phone ke share sheet se file WhatsApp/Drive par bhej deta hai.
+- **Protected storage:** browser ko data khud delete karne se rokne ki request (Security & Backup page).
+- **Trash + Undo:** koi bhi delete (entry, bill, loan, goal, customer, stock...) 30 din tak Trash me rehta hai. Delete ke baad 7 second ka Undo button aata hai.
+- **Naya Menu:** search box, "Haal hi me" list, aur 7 saaf groups. Pehle chhupe hue tools (Study Timer, Homework, Finance Hub, Search) bhi ab dikhte hain.
+- Limit: automatic copy usi browser me rehti hai, "Clear site data" se ye bhi ud sakti hai. Isliye haftawari backup file bahar rakho.

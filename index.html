@@ -565,7 +565,7 @@ function saveSavingsTarget(){D.saveTarget=+$('saveTarget').value||0;save();smart
 function billReminders(){D.bills=D.bills||[];var today=iso(new Date());addCard(42,'<div class="card"><b>🔔 Bill / payment reminders</b><label>Bill name</label><input id="billName" placeholder="Electricity, internet, rent"><div class="g"><div><label>Amount</label><input type="number" id="billAmt"></div><div><label>Due date</label><input type="date" id="billDue"></div></div><label>Repeat</label><select id="billRepeat"><option>One-time</option><option>Monthly</option><option>Yearly</option></select><button class="btn" onclick="saveBillReminder()">Reminder save karo</button></div><div class="card"><b>Upcoming / overdue</b>'+(D.bills.length?D.bills.slice().sort(function(a,b){return a.d.localeCompare(b.d)}).map(function(x){return '<div class="row"><div>'+esc(x.n)+'<small>'+x.d+' · '+f(x.a)+' · '+(x.d<today?'OVERDUE':x.d===today?'DUE TODAY':'Upcoming')+' · '+x.repeat+' · '+(x.paid?'Paid':'Unpaid')+'</small></div><div><button class="x" onclick="billPaid('+x.id+')">'+(x.paid?'↩️':'✅')+'</button><button class="x" onclick="deleteById(\'bills\','+x.id+')">✕</button></div></div>'}).join(''):'<p class="k">No bill reminders.</p>')+'<p class="k">Browser-only reminders run only when app is open. For reliable notifications while closed, a native app/backend is needed.</p></div>')}
 function saveBillReminder(){var n=$('billName').value.trim(),a=+$('billAmt').value,d=$('billDue').value;if(!n||!d||!(a>=0)){toast('Bill details daalo');return}D.bills.push({id:Date.now(),n:n,a:a,d:d,repeat:$('billRepeat').value,paid:false});save();billReminders()}
 function billPaid(id){var x=(D.bills||[]).filter(function(z){return z.id==id})[0];if(x){x.paid=!x.paid;save();billReminders()}}
-function securityHub(){addCard(43,'<div class="card"><b>🛡️ Security & Backup</b><p class="k">Data currently localStorage mein hai. PIN lock casual access rokta hai, encryption ya cloud sync nahi hai. Sensitive financial records share karne se pehle socho.</p><button class="btn" onclick="downloadBackup()">⬇️ Full JSON backup download</button><label>Backup restore</label><input type="file" accept="application/json,.json" onchange="restoreBackup(this)"><button class="btn" style="background:var(--rd)" onclick="if(confirm(\'Is profile ka saara data permanently delete karein? Pehle backup lein.\')){localStorage.removeItem(dk());D={tx:[],goal:0};save();draw();toast(\'Local profile data reset hua\')}">Delete this profile data</button><p class="k">Cloud sync, biometric lock aur server-side encrypted storage ke liye secure backend aur authentication setup alag se chahiye—iss offline HTML mein pretend cloud sync nahi dikhaya gaya.</p></div>')}
+function securityHub(){addCard(43,'<div class="card"><b>🛡️ Security & Backup</b><p class="k">Data localStorage me hai aur har change ke baad IndexedDB me automatic copy bhi banti hai. PIN lock casual access rokta hai, encryption ya cloud sync nahi hai. Sensitive financial records share karne se pehle socho.</p><button class="btn" onclick="downloadBackup()">⬇️ Full JSON backup download</button><label>Backup restore</label><input type="file" accept="application/json,.json" onchange="restoreBackup(this)"><button class="btn" style="background:var(--rd)" onclick="if(confirm(\'Is profile ka saara data permanently delete karein? Pehle backup lein.\')){localStorage.removeItem(dk());D={tx:[],goal:0};save();draw();toast(\'Local profile data reset hua\')}">Delete this profile data</button><p class="k">Cloud sync, biometric lock aur server-side encrypted storage ke liye secure backend aur authentication setup alag se chahiye—iss offline HTML mein pretend cloud sync nahi dikhaya gaya.</p></div>')}
 function downloadBackup(){var blob=new Blob([JSON.stringify({app:'Money Pilot',version:2,exportedAt:new Date().toISOString(),profile:PA,D:D},null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='MoneyPilot-backup-'+iso(new Date())+'.json';a.click();setTimeout(function(){URL.revokeObjectURL(u)},1000)}
 function restoreBackup(inp){var file=inp.files&&inp.files[0];if(!file)return;var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result),data=o.D||o;if(!Array.isArray(data.tx))throw Error('invalid');if(!confirm('Current profile data replace hoga. Continue?'))return;D=data;save();draw();toast('Backup restore ho gaya')}catch(e){toast('Backup file valid nahi hai')}};r.readAsText(file)}
 function jarvisMoney(){addCard(44,'<div class="card"><b>🤖 Jarvis Money AI — local assistant</b><p class="k">Yeh V1 assistant aapke saved data par basic analysis karta hai; external AI/API call nahi karta.</p><label>Apna sawal likho</label><textarea id="jarvisQ" rows="3" placeholder="Mera is mahine kharcha kitna hai? / Where did my money go?"></textarea><button class="btn" onclick="jarvisAsk()">Ask Jarvis</button><button class="btn" style="background:#0ea5e9" onclick="jarvisVoice()">🎤 Voice input</button><div id="jarvisAnswer" class="card"></div></div>')}
@@ -1047,6 +1047,197 @@ function installMoneyPilot(){
   document.addEventListener('visibilitychange',function(){if(!document.hidden){tick();nativeSync()}});
   setInterval(tick,30000);
   window.addEventListener('load',function(){setTimeout(function(){mirror().then(tick);nativeSync()},1500)});
+})();
+</script>
+<script>
+/* ===== V3.5: Data safety (IndexedDB copy + backup reminder), Trash/Undo, searchable menu ===== */
+(function(){
+  'use strict';
+  var $=function(i){return document.getElementById(i)};
+  function pa(){return window.PA||'p1'}
+  function esc2(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function tmsg(m){try{if(typeof window.toast==='function')window.toast(m)}catch(e){}}
+  function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+  function ago(ts){var m=Math.floor((Date.now()-ts)/6e4);if(m<1)return 'abhi';if(m<60)return m+' min pehle';var h=Math.floor(m/60);if(h<24)return h+' ghante pehle';return Math.floor(h/24)+' din pehle'}
+  function kb(n){return n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
+
+  /* ---------- IndexedDB helpers ---------- */
+  function idb(){return new Promise(function(res,rej){var r=indexedDB.open('mp-data',1);r.onupgradeneeded=function(){r.result.createObjectStore('kv')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
+  function kvGet(k){return idb().then(function(db){return new Promise(function(res){var q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=function(){res(q.result)};q.onerror=function(){res(null)}})}).catch(function(){return null})}
+  function kvSet(k,v){return idb().then(function(db){return new Promise(function(res){var t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=function(){res(true)};t.onerror=function(){res(false)}})}).catch(function(){return false})}
+  function kvDel(k){return idb().then(function(db){return new Promise(function(res){var t=db.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=function(){res(true)};t.onerror=function(){res(false)}})}).catch(function(){return false})}
+  function kvKeys(){return idb().then(function(db){return new Promise(function(res){var q=db.transaction('kv').objectStore('kv').getAllKeys();q.onsuccess=function(){res(q.result||[])};q.onerror=function(){res([])}})}).catch(function(){return []})}
+
+  /* ---------- auto copy to IndexedDB after every save ---------- */
+  var mirT=null;
+  async function mirror(){
+    try{
+      var key=window.dk(),json=localStorage.getItem(key);if(!json)return;
+      var rec={t:Date.now(),json:json};
+      await kvSet('latest:'+key,rec);
+      await kvSet('snap:'+key+':'+today(),rec);
+      var keys=(await kvKeys()).filter(function(k){return String(k).indexOf('snap:'+key+':')===0}).sort();
+      while(keys.length>7){await kvDel(keys.shift())}
+      try{localStorage.setItem('mp_last_mirror_'+pa(),String(rec.t))}catch(e){}
+    }catch(e){}
+  }
+  function queueMirror(){clearTimeout(mirT);mirT=setTimeout(mirror,2000)}
+
+  async function recoverCheck(){
+    try{
+      var key=window.dk();if(localStorage.getItem(key)!==null)return;
+      var rec=await kvGet('latest:'+key);if(!rec||!rec.json||rec.json.length<60)return;
+      var o=JSON.parse(rec.json);if(!o||!Array.isArray(o.tx))return;
+      if(confirm('Is phone/browser me Money Pilot ka data nahi mila, lekin automatic backup copy mili ('+new Date(rec.t).toLocaleString('en-IN')+').\n\nRestore karun?')){
+        window.D=o;window.save();window.draw();tmsg('Data wapas aa gaya \u2705')}
+    }catch(e){}
+  }
+
+  /* ---------- backups ---------- */
+  function lastBackup(){return +(localStorage.getItem('mp_last_backup_'+pa())||0)}
+  function markBackup(){try{localStorage.setItem('mp_last_backup_'+pa(),String(Date.now()))}catch(e){}}
+  window.mpBackupNow=async function(){
+    var D2=window.D,fn='MoneyPilot-backup-'+today()+'.json';
+    var blob=new Blob([JSON.stringify({app:'Money Pilot',version:2,exportedAt:new Date().toISOString(),profile:pa(),D:D2},null,2)],{type:'application/json'});
+    try{var file=new File([blob],fn,{type:'application/json'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Money Pilot backup'});markBackup();refreshUI();tmsg('Backup share ho gaya \u2705');return}
+    }catch(e){if(e&&e.name==='AbortError')return}
+    window.downloadBackup();
+  };
+  var oldDL=window.downloadBackup;
+  if(typeof oldDL==='function'){window.downloadBackup=function(){var r=oldDL.apply(this,arguments);markBackup();setTimeout(refreshUI,300);return r}}
+  window.mpBackupSnooze=function(){try{localStorage.setItem('mp_bk_snooze_'+pa(),String(Date.now()+2*864e5))}catch(e){}refreshUI()};
+  function backupDue(){
+    var D2=window.D||{};if(!(D2.tx&&D2.tx.length>=3))return false;
+    if(+(localStorage.getItem('mp_bk_snooze_'+pa())||0)>Date.now())return false;
+    var lb=lastBackup();return !lb||Date.now()-lb>7*864e5;
+  }
+  function renderBanner(){
+    var p=$('p0');if(!p)return;var o=$('mp-bk-banner');if(o)o.parentNode.removeChild(o);
+    if(!backupDue())return;var lb=lastBackup();
+    p.insertAdjacentHTML('afterbegin','<div class="card" id="mp-bk-banner" style="border-left:4px solid #f59e0b"><b>\ud83d\udcbe Backup lene ka time</b><p class="k" style="margin:4px 0 8px">'+(lb?'Aakhri backup '+ago(lb)+' liya tha.':'Abhi tak backup nahi liya.')+' Backup file WhatsApp/Drive par bhej do, phone kho jaye to bhi data safe.</p><div style="display:flex;gap:8px"><button class="btn sm" onclick="mpBackupNow()">\ud83d\udcbe Backup lo</button><button class="btn sm" style="background:#64748b" onclick="mpBackupSnooze()">2 din baad</button></div></div>');
+  }
+
+  /* ---------- Trash + Undo ---------- */
+  var KN={tx:'Entry',bills:'Bill reminder',loans:'Loan',followups:'Follow-up',goals:'Goal',invs:'Invoice',inv:'Invoice',stock:'Stock item',cust:'Customer',khata:'Udhaar',staff:'Staff',budgets:'Budget',rec:'Recurring',savingsChallenges:'Savings challenge'};
+  function snapIds(){var m={},D2=window.D||{};for(var k in D2){if(k==='trash')continue;var a=D2[k];if(Array.isArray(a)){for(var i=0;i<a.length;i++){var it=a[i];if(it&&typeof it==='object'&&it.id!=null)m[k+'|'+it.id]=it}}}return m}
+  function labelOf(k,it){try{
+    if(k==='tx')return (it.n||it.c||'Entry')+' \u00b7 '+window.f(it.a);
+    var nm=it.n||it.name||it.title||it.t||it.no||'';return String(nm).slice(0,40)||(KN[k]||k);
+  }catch(e){return KN[k]||k}}
+  function wrapDel(name){
+    var o=window[name];if(typeof o!=='function'||o.__mpTrash)return;
+    var w=function(){
+      var before=snapIds(),r=o.apply(this,arguments);
+      try{
+        var after=snapIds(),gone=[];for(var key in before){if(!(key in after)){gone.push({k:key.split('|')[0],item:before[key]})}}
+        if(gone.length){var D2=window.D;D2.trash=D2.trash||[];var t=Date.now();
+          gone.forEach(function(g,i){D2.trash.unshift({tid:t+'-'+i,k:g.k,item:g.item,t:t,label:labelOf(g.k,g.item)})});
+          D2.trash=D2.trash.slice(0,300);window.save();
+          snack(gone.length===1?gone[0].k&&D2.trash[0].label:gone.length+' items',D2.trash[0].tid);refreshUI()}
+      }catch(e){console.error('trash',e)}
+      return r;
+    };
+    w.__mpTrash=true;window[name]=w;
+  }
+  ['del','kdel','bdel','rdel','sdel','gpdel','godel','cbdel','prdel','deleteById'].forEach(wrapDel);
+  function purgeOld(){var D2=window.D;if(D2&&D2.trash&&D2.trash.length){var cut=Date.now()-30*864e5,n=D2.trash.length;D2.trash=D2.trash.filter(function(x){return x.t>cut});if(D2.trash.length!==n)window.save()}}
+  var snT=null;
+  function snack(label,tid){
+    var e=$('mp-snack');if(!e){e=document.createElement('div');e.id='mp-snack';e.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:99990;background:#0f172a;color:#fff;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:14px';document.body.appendChild(e)}
+    e.innerHTML='<span>\ud83d\uddd1\ufe0f '+esc2(label)+' delete hua</span><button style="background:#fbbf24;color:#111;border:0;border-radius:8px;padding:8px 14px;font-weight:700" onclick="mpUndo(\''+tid+'\')">\u21a9\ufe0f Undo</button>';
+    e.style.display='flex';clearTimeout(snT);snT=setTimeout(function(){e.style.display='none'},7000);
+  }
+  window.mpUndo=function(tid){
+    var D2=window.D,tr=D2.trash||[],i=tr.findIndex(function(x){return x.tid===tid});if(i<0)return;
+    var x=tr[i];D2[x.k]=D2[x.k]||[];
+    if(!D2[x.k].some(function(z){return z&&z.id===x.item.id}))D2[x.k].push(x.item);
+    tr.splice(i,1);window.save();window.draw();
+    var e=$('mp-snack');if(e)e.style.display='none';tmsg('Wapas aa gaya \u2705');
+  };
+  window.mpTrashEmpty=function(){if(!confirm('Trash ki saari items hamesha ke liye delete hongi. Continue?'))return;window.D.trash=[];window.save();refreshUI()};
+
+  /* ---------- Data Safety card on Security & Backup page ---------- */
+  async function renderSafety(){
+    var p=$('p43');if(!p)return;var old=$('mp-safe-card');if(old)old.parentNode.removeChild(old);var old2=$('mp-trash-card');if(old2)old2.parentNode.removeChild(old2);
+    var persisted=false,usage='',lm=+(localStorage.getItem('mp_last_mirror_'+pa())||0),lb=lastBackup();
+    try{if(navigator.storage&&navigator.storage.persisted)persisted=await navigator.storage.persisted()}catch(e){}
+    try{if(navigator.storage&&navigator.storage.estimate){var es=await navigator.storage.estimate();usage=kb(es.usage||0)+' use'+(es.quota?' / '+kb(es.quota):'')}}catch(e){}
+    var key=window.dk(),keys=(await kvKeys()).filter(function(k){return String(k).indexOf('snap:'+key+':')===0}).sort().reverse(),snaps='';
+    for(var i=0;i<keys.length;i++){var r=await kvGet(keys[i]);if(r)snaps+='<div class="row"><div>'+esc2(String(keys[i]).split(':').pop())+'<small>'+kb(r.json.length)+' \u00b7 '+ago(r.t)+'</small></div><div><button class="btn sm" onclick="mpSnapRestore(\''+esc2(keys[i])+'\')">Restore</button></div></div>'}
+    var h='<div class="card" id="mp-safe-card"><b>\ud83d\udcbe Data Safety</b>'
+      +'<div class="row"><div>Automatic copy (IndexedDB)<small>'+(lm?'Aakhri copy '+ago(lm):'Abhi copy nahi bani')+'</small></div><div>'+(lm?'\u2705':'\u23f3')+'</div></div>'
+      +'<div class="row"><div>Last backup file<small>'+(lb?ago(lb):'Abhi tak nahi liya')+'</small></div><div>'+(lb&&Date.now()-lb<7*864e5?'\u2705':'\u26a0\ufe0f')+'</div></div>'
+      +'<div class="row"><div>Protected storage<small>Browser data khud delete na kare'+(usage?' \u00b7 '+usage:'')+'</small></div><div>'+(persisted?'\u2705':'<button class="btn sm" onclick="mpPersist()">ON karo</button>')+'</div></div>'
+      +'<button class="btn" style="margin-top:10px" onclick="mpBackupNow()">\ud83d\udcbe Backup lo / WhatsApp-Drive par bhejo</button>'
+      +(snaps?'<div class="k" style="margin:12px 0 4px"><b>Pichhle 7 din ki automatic copies</b></div>'+snaps:'')
+      +'<p class="k" style="margin-top:10px">Dhyan: automatic copy browser ke andar hi rehti hai. "Clear site data" ya app uninstall karne par ye bhi ud sakti hai, isliye haftे me ek baar backup file bahar (WhatsApp/Drive) bhej do.</p></div>';
+    var tr=(window.D&&window.D.trash)||[];
+    var th='<div class="card" id="mp-trash-card"><div style="display:flex;justify-content:space-between;align-items:center"><b>\ud83d\uddd1\ufe0f Trash ('+tr.length+')</b>'+(tr.length?'<button class="x" onclick="mpTrashEmpty()">Khaali karo</button>':'')+'</div><p class="k" style="margin:4px 0">Delete ki hui cheezein 30 din tak yahan rehti hain.</p>'
+      +(tr.length?tr.slice(0,40).map(function(x){return '<div class="row"><div>'+esc2(x.label)+'<small>'+esc2(KN[x.k]||x.k)+' \u00b7 '+ago(x.t)+'</small></div><div><button class="btn sm" onclick="mpUndo(\''+x.tid+'\')">\u21a9\ufe0f Restore</button></div></div>'}).join(''):'<p class="k">Trash khaali hai.</p>')+'</div>';
+    p.insertAdjacentHTML('afterbegin',th);p.insertAdjacentHTML('afterbegin',h);
+  }
+  window.mpPersist=async function(){try{var ok=await navigator.storage.persist();tmsg(ok?'Protected storage ON \u2705':'Browser ne abhi allow nahi kiya. App ko home screen par install karke try karo')}catch(e){tmsg('Is browser me support nahi')}renderSafety()};
+  window.mpSnapRestore=async function(k){
+    var r=await kvGet(k);if(!r)return;
+    if(!confirm('Current data is copy ('+new Date(r.t).toLocaleString('en-IN')+') se replace hoga. Continue?'))return;
+    try{window.D=JSON.parse(r.json);window.save();window.draw();tmsg('Copy se restore ho gaya \u2705')}catch(e){tmsg('Copy valid nahi hai')}
+  };
+  function refreshUI(){try{renderBanner()}catch(e){}try{renderSafety()}catch(e){}}
+
+  /* ---------- Searchable, grouped menu ---------- */
+  var MG2=[
+    ['\u2b50 Roz ka kaam',[1,4,9,29,42,50,12,16]],
+    ['\ud83d\udcca Report aur Planning',[2,11,10,18,49,48,20,41,46,40,37,3]],
+    ['\ud83c\udfea Business',[6,7,27,52,13,54,14,33,34,53,28,36,30,31,35,32,38,39]],
+    ['\ud83e\uddfe Tax aur Accounts',[17,19,47,55,58,56]],
+    ['\ud83c\udf93 Student',[45,21,22,23,24,8]],
+    ['\ud83e\udd16 Smart Help',[5,44,51]],
+    ['\u2699\ufe0f Settings aur Safety',[43,15,26,25,57]]
+  ];
+  function recents(){try{return JSON.parse(localStorage.getItem('mp_recent')||'[]')}catch(e){return []}}
+  var oldGo=window.go;
+  if(typeof oldGo==='function'){window.go=function(i){try{if(i>2){var r=recents().filter(function(x){return x!==i});r.unshift(i);localStorage.setItem('mp_recent',JSON.stringify(r.slice(0,6)))}}catch(e){}return oldGo.apply(this,arguments)}}
+  function btn(i){return '<button class="mpm" data-t="'+esc2(window.T[i]).toLowerCase()+'" onclick="go('+i+');menu()">'+esc2(window.T[i])+'</button>'}
+  window.menu=function(){
+    var m=$('mn');if(!m)return;
+    if(m.className!=='hide'){m.className='hide';return}
+    var T=window.T,used={},h='<div class="k" style="margin-bottom:8px"><b>Menu</b></div><input id="mp-menu-q" placeholder="\ud83d\udd0e Tool dhundo (jaise GST, stock, EMI)" oninput="mpMenuFilter(this.value)" style="margin-bottom:6px">';
+    var rc=recents().filter(function(i){return T[i]});
+    if(rc.length)h+='<div class="mpg"><div class="mpgh k"><b>\ud83d\udd58 Haal hi me</b></div><div class="mpgb">'+rc.map(btn).join('')+'</div></div>';
+    var cur=window.tab;
+    MG2.forEach(function(g,gi){
+      var ids=g[1].filter(function(i){return T[i]});ids.forEach(function(i){used[i]=1});
+      var open=gi===0||ids.indexOf(cur)>=0;
+      h+='<div class="mpg'+(open?' open':'')+'"><button class="mpgh" onclick="this.parentNode.classList.toggle(\'open\')">'+g[0]+' <span style="float:right;opacity:.6">'+ids.length+'</span></button><div class="mpgb">'+ids.map(btn).join('')+'</div></div>';
+    });
+    var rest=[];for(var i=3;i<T.length;i++){if(!used[i]&&i!==0&&T[i])rest.push(i)}
+    if(rest.length)h+='<div class="mpg"><button class="mpgh" onclick="this.parentNode.classList.toggle(\'open\')">\ud83d\udce6 Baaki <span style="float:right;opacity:.6">'+rest.length+'</span></button><div class="mpgb">'+rest.map(btn).join('')+'</div></div>';
+    h+='<button class="mpm mpx" data-t="trash data safety backup undo" onclick="go(43);menu()">\ud83d\uddd1\ufe0f Trash aur Data Safety</button><button class="mpm mpx" data-t="logout" onclick="menu();logout()">Logout</button>';
+    $('mp').innerHTML=h;m.className='';
+  };
+  window.mpMenuFilter=function(q){
+    q=(q||'').toLowerCase().trim();var gs=document.querySelectorAll('#mp .mpg');
+    for(var i=0;i<gs.length;i++){var bs=gs[i].querySelectorAll('.mpm'),any=false;
+      for(var j=0;j<bs.length;j++){var ok=!q||bs[j].getAttribute('data-t').indexOf(q)>=0;bs[j].style.display=ok?'':'none';if(ok)any=true}
+      gs[i].style.display=any?'':'none';if(q&&any)gs[i].classList.add('open')}
+    var xs=document.querySelectorAll('#mp .mpx');for(var k=0;k<xs.length;k++){xs[k].style.display=(!q||xs[k].getAttribute('data-t').indexOf(q)>=0)?'':'none'}
+  };
+  var st=document.createElement('style');
+  st.textContent='#mp .mpg .mpgb{display:none}#mp .mpg.open .mpgb{display:block}#mp .mpgh{display:block;width:100%;text-align:left;font-weight:700;background:transparent;border:0;border-bottom:1px solid rgba(128,128,128,.25);padding:10px 4px;margin-top:6px}#mp .mpm{display:block;width:100%;text-align:left}';
+  document.head.appendChild(st);
+
+  /* ---------- hooks ---------- */
+  var oldSave=window.save;
+  if(typeof oldSave==='function'){window.save=function(){var r=oldSave.apply(this,arguments);queueMirror();return r}}
+  var oldHome=window.home;
+  if(typeof oldHome==='function'){window.home=function(){var r=oldHome.apply(this,arguments);try{renderBanner()}catch(e){}return r}}
+  var oldSec=window.securityHub;
+  if(typeof oldSec==='function'){window.securityHub=function(){var r=oldSec.apply(this,arguments);try{renderSafety()}catch(e){}return r}}
+  window.addEventListener('load',function(){
+    setTimeout(function(){purgeOld();recoverCheck().then(function(){mirror();refreshUI()});
+      try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}},1800);
+  });
 })();
 </script>
 </body></html>
