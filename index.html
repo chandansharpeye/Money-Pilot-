@@ -915,4 +915,138 @@ function installMoneyPilot(){
   var hiddenAt=0;document.addEventListener('visibilitychange',function(){if(document.hidden){hiddenAt=Date.now()}else if(hiddenAt&&Date.now()-hiddenAt>30000){var cfg=mpReadLock();if(cfg&&cfg.enabled)mpLockNow();hiddenAt=0}});
 })();
 </script>
+<script>
+/* ===== V3.5 Notification reminders: bills, EMI, follow-ups, goals, daily nudge ===== */
+(function(){
+  'use strict';
+  var $=function(i){return document.getElementById(i)};
+  function pa(){return window.PA||'p1'}
+  function cfgKey(){return 'mp_notif_cfg_'+pa()}
+  function firedKey(){return 'mp_notif_fired_'+pa()}
+  function getCfg(){var d={on:false,hh:9,mm:0,before:true,daily:false,dh:21,dm:0};try{var c=JSON.parse(localStorage.getItem(cfgKey())||'null');if(c)for(var k in c)d[k]=c[k]}catch(e){}return d}
+  function setCfg(c){try{localStorage.setItem(cfgKey(),JSON.stringify(c))}catch(e){}}
+  function getFired(){try{return JSON.parse(localStorage.getItem(firedKey())||'{}')}catch(e){return {}}}
+  function setFired(o){var cut=Date.now()-60*864e5;for(var k in o){if(o[k]<cut)delete o[k]}try{localStorage.setItem(firedKey(),JSON.stringify(o))}catch(e){}}
+  function pd(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?new Date(+m[1],+m[2]-1,+m[3]):null}
+  function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+  function money(n){return '\u20b9'+Math.round(Number(n)||0).toLocaleString('en-IN')}
+  function tmsg(m){try{if(typeof window.toast==='function')window.toast(m)}catch(e){}}
+  function hid(k){var h=7;for(var i=0;i<k.length;i++)h=(h*31+k.charCodeAt(i))|0;return Math.abs(h)%2147480000+1}
+  function esc2(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+  /* ---- build list of upcoming reminders from existing app data ---- */
+  function collect(){
+    var c=getCfg(),out=[],now=new Date(),Dd=window.D||{};
+    var today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),horizon=new Date(today.getFullYear(),today.getMonth(),today.getDate()+45);
+    function add(key,day,hh,mm,title,body){out.push({key:key,at:new Date(day.getFullYear(),day.getMonth(),day.getDate(),hh,mm).getTime(),title:title,body:body})}
+    function due(kind,id,ds,label,amt){
+      var d=pd(ds);if(!d)return;var a=amt>0?money(amt)+' \u00b7 ':'';
+      if(d<today){if((today-d)/864e5<=60)add(kind+':'+id+':od:'+iso(today),today,c.hh,c.mm,'\u26a0\ufe0f '+label+' overdue',a+ds+' se pending hai')}
+      else if(d<=horizon){
+        add(kind+':'+id+':'+ds,d,c.hh,c.mm,'\ud83d\udd14 '+label+' aaj due hai',a+'Aaj hi nipta lo');
+        if(c.before){var b=new Date(d.getFullYear(),d.getMonth(),d.getDate()-1);if(b>=today)add(kind+':'+id+':b1:'+ds,b,c.hh,c.mm,'\u23f0 '+label+' kal due hai',a+'Kal '+ds+' ko due')}
+      }
+    }
+    (Dd.bills||[]).forEach(function(x){if(!x.paid)due('bill',x.id,x.d,x.n,x.a)});
+    (Dd.loans||[]).forEach(function(x){if(x.next&&x.paid<x.emis)due('emi',x.id,x.next,'EMI: '+x.n,x.emi)});
+    (Dd.followups||[]).forEach(function(x){if(!x.done)due('fu',x.id,x.d,x.t+(x.n?' ('+x.n+')':''),0)});
+    (Dd.savingsChallenges||[]).forEach(function(x){if(x.date&&x.saved<x.target)due('sv',x.id,x.date,'Savings goal: '+x.name,x.target-x.saved)});
+    (Dd.goals||[]).forEach(function(x){if(x.d&&x.s<x.t)due('go',x.id,x.d,'Goal: '+x.n,x.t-x.s)});
+    if(c.daily){for(var i=0;i<14;i++){var day=new Date(today.getFullYear(),today.getMonth(),today.getDate()+i);add('daily:'+iso(day),day,c.dh,c.dm,'\ud83e\uddfe Aaj ka hisaab likha?','Aaj ke kharch Money Pilot me add kar lo, 30 second lagenge')}}
+    var minAt=Date.now()-864e5;
+    return out.filter(function(x){return x.at>=minAt}).sort(function(a,b){return a.at-b.at});
+  }
+
+  /* ---- native (Capacitor APK) ---- */
+  function nativeLN(){var C=window.Capacitor;try{return (C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.LocalNotifications)||null}catch(e){return null}}
+  async function nativeSync(){
+    var LN=nativeLN();if(!LN)return;var c=getCfg();
+    try{var pend=await LN.getPending();if(pend&&pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications.map(function(n){return {id:n.id}})})}catch(e){}
+    if(!c.on)return;
+    try{await LN.createChannel({id:'mp-reminders',name:'Money Pilot Reminders',description:'Bills, EMI, goals aur daily reminders',importance:5,visibility:1,vibration:true,lights:true})}catch(e){}
+    var now=Date.now(),items=collect().filter(function(x){return x.at>now}).slice(0,60);
+    if(!items.length)return;
+    try{await LN.schedule({notifications:items.map(function(it){return {id:hid(it.key),title:it.title,body:it.body,schedule:{at:new Date(it.at),allowWhileIdle:true},channelId:'mp-reminders'}})})}catch(e){console.error('native schedule',e)}
+  }
+
+  /* ---- web: IndexedDB mirror so the service worker can fire due reminders ---- */
+  function idb(){return new Promise(function(res,rej){var r=indexedDB.open('mp-notify',1);r.onupgradeneeded=function(){r.result.createObjectStore('kv')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
+  function kvGet(k){return idb().then(function(db){return new Promise(function(res){var q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=function(){res(q.result)};q.onerror=function(){res(null)}})}).catch(function(){return null})}
+  function kvSet(k,v){return idb().then(function(db){return new Promise(function(res){var t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=function(){res(true)};t.onerror=function(){res(false)}})}).catch(function(){return false})}
+  async function mirror(){
+    var c=getCfg();if(nativeLN())return;
+    var f=getFired(),sw=(await kvGet('fired'))||{};for(var k in sw){if(!f[k])f[k]=sw[k]}setFired(f);
+    await kvSet('fired',f);await kvSet('queue',{on:!!c.on,items:collect()});
+    try{var r=await navigator.serviceWorker.ready;if(c.on&&r.periodicSync)await r.periodicSync.register('mp-reminder-check',{minInterval:3600e3})}catch(e){}
+  }
+  function showWeb(it){
+    var o={body:it.body,icon:'icon-192.png',badge:'icon-192.png',tag:it.key,vibrate:[200,100,200,100,200],data:{url:'./index.html'}};
+    function fb(){try{new Notification(it.title,o)}catch(e){}}
+    if(navigator.serviceWorker&&navigator.serviceWorker.ready)return navigator.serviceWorker.ready.then(function(r){return r.showNotification(it.title,o)}).catch(fb);
+    fb();
+  }
+  async function tick(){
+    var c=getCfg();if(!c.on||nativeLN())return;
+    if(!('Notification' in window)||Notification.permission!=='granted')return;
+    var sw=(await kvGet('fired'))||{},f=getFired(),k;for(k in sw){if(!f[k])f[k]=sw[k]}
+    var now=Date.now(),n=0;
+    collect().forEach(function(it){if(it.at<=now&&!f[it.key]){f[it.key]=now;n++;showWeb(it)}});
+    if(n){setFired(f);kvSet('fired',f);try{if(typeof window.chime==='function')window.chime()}catch(e){}}
+  }
+  var syncT=null;
+  function afterChange(){clearTimeout(syncT);syncT=setTimeout(function(){mirror().then(tick);nativeSync()},1200)}
+
+  /* ---- settings card on the Reminders page ---- */
+  function perm(){var LN=nativeLN();if(LN)return 'native';return ('Notification' in window)?Notification.permission:'unsupported'}
+  function renderCard(){
+    var p=$('p42');if(!p)return;var old=$('mp-notif-card');if(old)old.parentNode.removeChild(old);
+    var c=getCfg(),st=perm(),mode=nativeLN()?'Native app: exact time par, app band ho tab bhi':'Browser/PWA: app khula ya background me ho tab pakka; band hone par best-effort';
+    var t=('0'+c.hh).slice(-2)+':'+('0'+c.mm).slice(-2),dt=('0'+c.dh).slice(-2)+':'+('0'+c.dm).slice(-2);
+    var status=c.on&&(st==='granted'||st==='native')?'<span style="color:var(--gr)">\ud83d\udd14 ON</span>':(st==='denied'?'<span style="color:var(--rd)">Blocked: browser Settings me allow karo</span>':(st==='unsupported'?'Is browser me notifications support nahi':'OFF'));
+    var h='<div class="card" id="mp-notif-card"><b>\ud83d\udd14 Notifications (sound ke saath)</b><p class="k" style="margin:6px 0">Bills, EMI, follow-up aur goals ke din phone par notification aayegi. Status: '+status+'</p>'
+      +'<div class="k" style="margin-bottom:8px">'+esc2(mode)+'</div>'
+      +(c.on?'':'<button class="btn" onclick="mpNotifyEnable()">\ud83d\udd14 Notification ON karo</button>')
+      +'<label>Reminder ka time (due wale din)</label><input type="time" id="mp-n-time" value="'+t+'" onchange="mpNotifySave()">'
+      +'<label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="mp-n-before" '+(c.before?'checked':'')+' onchange="mpNotifySave()" style="width:auto"> Due se 1 din pehle bhi yaad dilao</label>'
+      +'<label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="mp-n-daily" '+(c.daily?'checked':'')+' onchange="mpNotifySave()" style="width:auto"> Roz hisaab likhne ka reminder</label>'
+      +'<input type="time" id="mp-n-dtime" value="'+dt+'" onchange="mpNotifySave()">'
+      +'<div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" onclick="mpNotifyTest()">\ud83d\udd0a Test notification</button>'+(c.on?'<button class="btn sm" style="background:#dc2626" onclick="mpNotifyOff()">OFF karo</button>':'')+'</div>'
+      +'<p class="k" style="margin-top:10px">Sound/vibration phone ki notification settings se chalta hai (Money Pilot ko silent mat rakho). Browser ke liye Android Chrome app band hone par time par bhejne ki guarantee nahi deta; pakka tareeka APK (Capacitor) hai.</p></div>';
+    p.insertAdjacentHTML('beforeend',h);
+  }
+  window.mpNotifyEnable=async function(){
+    var LN=nativeLN(),ok=false;
+    try{if(LN){var r=await LN.requestPermissions();ok=r&&r.display==='granted'}else if('Notification' in window){ok=(await Notification.requestPermission())==='granted'}}catch(e){}
+    if(!ok){tmsg('Notification permission nahi mili. Phone/browser Settings me allow karo');renderCard();return}
+    var c=getCfg();c.on=true;setCfg(c);tmsg('Notifications ON \ud83d\udd14');afterChange();renderCard();
+  };
+  window.mpNotifyOff=function(){var c=getCfg();c.on=false;setCfg(c);afterChange();renderCard();tmsg('Notifications OFF')};
+  window.mpNotifySave=function(){
+    var c=getCfg(),t=($('mp-n-time')||{}).value||'09:00',d=($('mp-n-dtime')||{}).value||'21:00';
+    c.hh=+t.split(':')[0];c.mm=+t.split(':')[1];c.dh=+d.split(':')[0];c.dm=+d.split(':')[1];
+    c.before=!!($('mp-n-before')||{}).checked;c.daily=!!($('mp-n-daily')||{}).checked;setCfg(c);afterChange();tmsg('Reminder settings save ho gayi');
+  };
+  window.mpNotifyTest=async function(){
+    var LN=nativeLN(),it={key:'test:'+Date.now(),title:'\ud83d\udd14 Money Pilot test',body:'Notification theek se aa rahi hai \u2705'};
+    try{
+      if(LN){var r=await LN.requestPermissions();if(r.display!=='granted'){tmsg('Permission allow karo');return}
+        try{await LN.createChannel({id:'mp-reminders',name:'Money Pilot Reminders',description:'Bills, EMI, goals aur daily reminders',importance:5,visibility:1,vibration:true})}catch(e){}
+        await LN.schedule({notifications:[{id:hid(it.key),title:it.title,body:it.body,schedule:{at:new Date(Date.now()+2500),allowWhileIdle:true},channelId:'mp-reminders'}]});tmsg('2 second me notification aayegi');return}
+      if(!('Notification' in window)){tmsg('Is browser me notifications support nahi');return}
+      if(Notification.permission!=='granted'){var p=await Notification.requestPermission();if(p!=='granted'){tmsg('Permission allow karo');return}}
+      await showWeb(it);try{if(typeof window.chime==='function')window.chime()}catch(e){}
+    }catch(e){tmsg('Test fail hua')}
+  };
+  window.mpNotifyTick=tick;window.mpNotifyCollect=collect;
+
+  /* ---- hooks ---- */
+  var oldBR=window.billReminders;
+  if(typeof oldBR==='function'){window.billReminders=function(){var r=oldBR.apply(this,arguments);try{renderCard()}catch(e){}return r}}
+  var oldSave=window.save;
+  if(typeof oldSave==='function'){window.save=function(){var r=oldSave.apply(this,arguments);afterChange();return r}}
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){tick();nativeSync()}});
+  setInterval(tick,30000);
+  window.addEventListener('load',function(){setTimeout(function(){mirror().then(tick);nativeSync()},1500)});
+})();
+</script>
 </body></html>

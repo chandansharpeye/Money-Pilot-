@@ -53,3 +53,21 @@ The app lock is a local privacy gate, not a security boundary against someone wh
 - Purana alphanumeric passcode wale users ke liye fallback password box.
 - Same storage key and PBKDF2 hash, existing data/lock settings nahi tootte.
 - Limit: yeh local privacy gate hai (browser storage level). Bank-grade security ke liye native Android Keystore chahiye.
+
+
+## V3.5: Notification reminders (sound ke saath)
+Reminders page (Bill / payment reminders) me naya "Notifications" card:
+- Notification ON/OFF, reminder ka time, due se 1 din pehle yaad dilana, roz hisaab likhne ka reminder, test button.
+- Reminders in cheezon se bante hain: unpaid bills, EMI next date, follow-ups, savings challenges aur goals ki date.
+- Overdue cheezon ka roz ek nudge.
+
+### Kaise kaam karta hai
+- **Browser/PWA:** app khula ya background me ho tab notification aati hai. Chrome ka Periodic Background Sync installed PWA par kabhi-kabhi band app me bhi chalata hai, lekin time ki guarantee nahi.
+- **Android APK (Capacitor):** exact time par local notification, app band ho tab bhi, phone ki notification sound/vibration ke saath. Ye pakka tareeka hai.
+- Notification ki sound phone/browser ki notification setting se aati hai (custom sound web par set nahi hoti).
+
+### APK me enable karne ke steps
+1. `npm install` (package.json me `@capacitor/local-notifications` add hai)
+2. `npx cap sync android`
+3. Android 13+ ke liye `POST_NOTIFICATIONS` aur exact alarm ki permission AndroidManifest me plugin docs ke hisaab se check karo.
+4. Build karke phone me install, Reminders page > "Notification ON karo".
