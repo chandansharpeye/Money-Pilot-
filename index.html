@@ -55,7 +55,38 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-
 #mp-lock-screen input{background:#fff;color:#101827;border:1px solid #cbd5e1;text-align:center;font-size:20px;letter-spacing:2px}
 #mp-lock-screen .mp-lock-note{font-size:12px;line-height:1.5;color:#cbd5e1;margin-top:12px}
 #mp-lock-screen .mp-lock-secondary{background:#ffffff18;border:1px solid #ffffff35}
-</style></head><body><div id="mp-lock-screen" role="dialog" aria-modal="true" aria-label="Money Pilot app lock"><div class="mp-lock-card"><div style="font-size:42px">🔐</div><h2 style="margin:8px 0">Money Pilot Locked</h2><p style="color:#dbeafe;margin:0 0 16px">Unlock with your passcode or device verification.</p><label for="mp-lock-input" style="color:#e2e8f0;text-align:left">PIN / Password</label><input id="mp-lock-input" type="password" autocomplete="current-password" placeholder="Enter passcode" maxlength="64"><button class="btn" onclick="mpLockUnlock()">🔓 Unlock</button><button id="mp-lock-bio" class="btn mp-lock-secondary" style="display:none" onclick="mpLockBioUnlock()">👆 Biometric / Device unlock</button><p id="mp-lock-error" class="mp-lock-note" role="status"></p><p class="mp-lock-note">This is a local app gate. For high-security protection, use Android device lock and keep the phone updated.</p></div></div><div id="lo"><div class="lc"><svg width="72" height="72" viewBox="0 0 64 64"><defs><linearGradient id="l1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#l1)"/><circle cx="34" cy="36" r="17" fill="#fff" fill-opacity=".2"/><text x="34" y="44" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="system-ui">₹</text><path d="M8 22 L32 10 L24 30 Z" fill="#fde68a"/></svg><h2 style="margin:8px 0 2px">Money Pilot</h2><div class="k">Apne paise ka pilot ✈️</div><label>Apna naam</label><input id="nm" placeholder="Naam" autocomplete="name"><label>Janm tithi (DOB)</label><input type="date" id="db"><button class="btn" onclick="login()">Shuru karo</button><div style="margin-top:12px"><select id="lg2" style="width:auto" onchange="setL(this.value)"><option value="hg">Hinglish</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="or">ଓଡ଼ିଆ</option></select></div><p class="k">Aapka naam aur DOB sirf aapke phone ke browser mein save hota hai.</p></div></div>
+
+#mp-lock-screen .mpk{width:66px;height:66px;margin:0 auto;border-radius:50%;border:0;background:#ffffff1f;color:#fff;font-size:26px;font-weight:600;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#mp-lock-screen .mpk:active{background:#ffffff55}
+#mp-lock-screen .mpk-bio,#mp-lock-screen .mpk-bs{background:transparent;font-size:28px}
+#mp-lock-screen .mpcell{display:flex;align-items:center;justify-content:center}
+#mp-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:290px;margin:0 auto}
+#mp-dots{display:flex;gap:16px;justify-content:center;margin:20px 0 22px}
+#mp-dots i{display:block;width:15px;height:15px;border-radius:50%;border:2px solid #fff}
+#mp-dots i.on{background:#fff}
+#mp-dots.err{animation:mpshake .4s}
+@keyframes mpshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+#mp-lock-screen .mp-lock-link{color:#93c5fd;font-size:13px;margin:0 10px;text-decoration:underline;cursor:pointer}
+</style></head><body><div id="mp-lock-screen" role="dialog" aria-modal="true" aria-label="Money Pilot app lock"><div class="mp-lock-card">
+<img src="icon-192.png" alt="" width="60" height="60" style="border-radius:16px;display:block;margin:0 auto 10px">
+<h2 id="mp-lock-title" style="margin:6px 0 4px">PIN daalo</h2>
+<p id="mp-lock-sub" style="color:#dbeafe;margin:0;font-size:13px">Money Pilot unlock karne ke liye 4-digit PIN</p>
+<div id="mp-main-pane">
+<div id="mp-dots"><i></i><i></i><i></i><i></i></div>
+<div id="mp-pad">
+<button class="mpk" onclick="mpKey('1')">1</button><button class="mpk" onclick="mpKey('2')">2</button><button class="mpk" onclick="mpKey('3')">3</button>
+<button class="mpk" onclick="mpKey('4')">4</button><button class="mpk" onclick="mpKey('5')">5</button><button class="mpk" onclick="mpKey('6')">6</button>
+<button class="mpk" onclick="mpKey('7')">7</button><button class="mpk" onclick="mpKey('8')">8</button><button class="mpk" onclick="mpKey('9')">9</button>
+<span class="mpcell"><button id="mp-lock-bio" class="mpk mpk-bio" style="display:none" onclick="mpLockBioUnlock()" aria-label="Fingerprint unlock">👆</button></span>
+<button class="mpk" onclick="mpKey('0')">0</button>
+<button class="mpk mpk-bs" onclick="mpBack()" aria-label="Delete">⌫</button>
+</div></div>
+<div id="mp-legacy" style="display:none;margin-top:14px"><label for="mp-lock-input" style="color:#e2e8f0;text-align:left">Purana PIN / Password</label><input id="mp-lock-input" type="password" autocomplete="current-password" placeholder="Enter passcode" maxlength="64"><button class="btn" onclick="mpLockUnlock()">🔓 Unlock</button></div>
+<div id="mp-forgot-box" style="display:none;margin-top:14px"><label for="mp-forgot-dob" style="color:#e2e8f0;text-align:left">Apni Janm tithi (DOB) daalo</label><input id="mp-forgot-dob" type="date"><button class="btn" onclick="mpForgotGo()">PIN reset karo</button><button class="btn mp-lock-secondary" onclick="mpForgotBack()">Wapas</button></div>
+<div id="mp-rec-box" style="display:none;margin-top:14px"><label for="mp-rec-dob" style="color:#e2e8f0;text-align:left">Recovery Janm tithi (DOB)</label><input id="mp-rec-dob" type="date"><button class="btn" onclick="mpRecSave()">Save karo</button><button class="btn mp-lock-secondary" onclick="mpRecSkip()">Abhi nahi</button></div><div id="mp-bio-offer" style="display:none;margin-top:18px"><div style="font-size:46px">👆</div><button class="btn" onclick="mpBioOffer()">Fingerprint / face unlock ON karo</button><button class="btn mp-lock-secondary" onclick="mpSkipBio()">Abhi nahi, sirf PIN</button></div>
+<p id="mp-lock-error" class="mp-lock-note" role="status" style="min-height:18px"></p>
+<p style="margin:8px 0 0"><a id="mp-forgot-link" class="mp-lock-link" onclick="mpForgot()">PIN bhool gaye?</a><a id="mp-skip-link" class="mp-lock-link" style="display:none" onclick="mpSkip()">Abhi nahi</a></p>
+</div></div><div id="lo"><div class="lc"><svg width="72" height="72" viewBox="0 0 64 64"><defs><linearGradient id="l1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#l1)"/><circle cx="34" cy="36" r="17" fill="#fff" fill-opacity=".2"/><text x="34" y="44" text-anchor="middle" font-size="24" font-weight="800" fill="#fff" font-family="system-ui">₹</text><path d="M8 22 L32 10 L24 30 Z" fill="#fde68a"/></svg><h2 style="margin:8px 0 2px">Money Pilot</h2><div class="k">Apne paise ka pilot ✈️</div><label>Apna naam</label><input id="nm" placeholder="Naam" autocomplete="name"><label>Janm tithi (DOB)</label><input type="date" id="db"><button class="btn" onclick="login()">Shuru karo</button><div style="margin-top:12px"><select id="lg2" style="width:auto" onchange="setL(this.value)"><option value="hg">Hinglish</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="or">ଓଡ଼ିଆ</option></select></div><p class="k">Aapka naam aur DOB sirf aapke phone ke browser mein save hota hai.</p></div></div>
 <div id="pl" style="display:none"><div class="lc"><h2 style="margin:0 0 6px">🔒 App Lock</h2><div class="k">PIN daalo</div><input type="password" inputmode="numeric" maxlength="4" id="pi" style="text-align:center;font-size:22px;letter-spacing:8px"><button class="btn" onclick="unlock()">Unlock</button><p class="k" style="cursor:pointer" onclick="fg()">PIN bhool gaye?</p><div id="fgb" class="hide"><label>Apni DOB daalo</label><input type="date" id="pd"><button class="btn" onclick="fgOk()">PIN reset karo</button></div></div></div>
 <div id="mn" class="hide" onclick="if(event.target==this)menu()"><div class="mp" id="mp"></div></div>
 <div id="ts" style="position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:#222;color:#fff;padding:10px 16px;border-radius:20px;z-index:70;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%;text-align:center;font-size:14px"></div>
@@ -779,16 +810,16 @@ function installMoneyPilot(){
   function mpRandom(n){var a=new Uint8Array(n);crypto.getRandomValues(a);return a}
   async function mpDerive(pass,salt){var key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveBits']);return new Uint8Array(await crypto.subtle.deriveBits({name:'PBKDF2',salt:salt,iterations:210000,hash:'SHA-256'},key,256))}
   async function mpPassHash(pass,salt){return mpBytesB64(await mpDerive(pass,salt))}
-  function mpLockScreen(show){var el=$('mp-lock-screen');if(el)el.style.display=show?'flex':'none';if(show){setTimeout(function(){var i=$('mp-lock-input');if(i)i.focus()},80)}}
+  function mpLockScreen(show){var el=$('mp-lock-screen');if(el)el.style.display=show?'flex':'none';if(show){mpBuf='';mpPinRender()}}
   function mpLockMessage(t){var el=$('mp-lock-error');if(el)el.textContent=t||''}
-  window.mpLockSetup=async function(){var pass=$('mp-lock-new')&&$('mp-lock-new').value,confirmPass=$('mp-lock-confirm')&&$('mp-lock-confirm').value;if(!pass||pass.length<4){toast('Passcode kam se kam 4 characters ka rakho');return}if(pass!==confirmPass){toast('Dono passcode match nahi hue');return}if(!window.crypto||!window.crypto.subtle){toast('Secure passcode hashing ke liye HTTPS/modern browser chahiye');return}try{var salt=mpRandom(16),hash=await mpPassHash(pass,salt),old=mpReadLock()||{};mpWriteLock({v:1,salt:mpBytesB64(salt),hash:hash,credentialId:old.credentialId||'',enabled:true});$('mp-lock-new').value='';$('mp-lock-confirm').value='';toast('App lock enable ho gaya 🔒');mpLockRender();mpLockScreen(true)}catch(e){toast('Lock setup nahi ho paya. HTTPS par try karo')}};
+  window.mpLockSetup=async function(){var pass=$('mp-lock-new')&&$('mp-lock-new').value,confirmPass=$('mp-lock-confirm')&&$('mp-lock-confirm').value;if(!/^\d{4}$/.test(pass||'')){toast('Sirf 4-digit PIN daalo (sirf numbers)');return}if(pass!==confirmPass){toast('Dono passcode match nahi hue');return}if(!window.crypto||!window.crypto.subtle){toast('Secure passcode hashing ke liye HTTPS/modern browser chahiye');return}try{var salt=mpRandom(16),hash=await mpPassHash(pass,salt),old=mpReadLock()||{};mpWriteLock({v:1,pinLen:4,salt:mpBytesB64(salt),hash:hash,credentialId:old.credentialId||'',enabled:true});$('mp-lock-new').value='';$('mp-lock-confirm').value='';toast('App lock enable ho gaya 🔒');mpLockRender();mpLockScreen(false)}catch(e){toast('Lock setup nahi ho paya. HTTPS par try karo')}};
   window.mpLockRemove=async function(){var cfg=mpReadLock();if(!cfg||!cfg.enabled){toast('App lock already off hai');return}var pass=prompt('Current PIN/password daalo to app lock remove ho:');if(pass===null)return;try{var got=await mpPassHash(pass,mpB64Bytes(cfg.salt));if(got!==cfg.hash){toast('Passcode galat hai');return}localStorage.removeItem(mpProfileKey());toast('App lock off ho gaya');mpLockRender();mpLockScreen(false)}catch(e){toast('Lock remove nahi ho paya')}};
   window.mpLockUnlock=async function(){var cfg=mpReadLock();if(!cfg||!cfg.enabled){mpLockScreen(false);return}var pass=$('mp-lock-input').value||'';try{var got=await mpPassHash(pass,mpB64Bytes(cfg.salt));if(got===cfg.hash){$('mp-lock-input').value='';mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now();return}mpLockMessage('Passcode galat hai. Dobara try karo.')}catch(e){mpLockMessage('Unlock nahi hua. Passcode check karo.')}};
   window.mpLockBioEnable=async function(){if(!window.PublicKeyCredential||!navigator.credentials||!navigator.credentials.create){toast('Is browser/device par biometric/passkey support nahi mila');return}if(location.protocol!=='https:'&&location.hostname!=='localhost'){toast('Biometric/passkey ke liye HTTPS zaroori hai');return}try{var challenge=mpRandom(32),userId=mpRandom(16),cred=await navigator.credentials.create({publicKey:{challenge:challenge,rp:{name:'Money Pilot',id:location.hostname},user:{id:userId,name:'money-pilot-local',displayName:'Money Pilot'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,attestation:'none'}});if(!cred)throw Error('No credential');var cfg=mpReadLock();if(!cfg||!cfg.enabled){toast('Pehle app passcode set karo');return}cfg.credentialId=mpBytesB64(new Uint8Array(cred.rawId));mpWriteLock(cfg);toast('Device verification enabled. Device PIN/biometric prompt aa sakta hai.');mpLockRender()}catch(e){toast('Biometric setup cancel hua ya device support nahi karta')}};
   window.mpLockBioUnlock=async function(){var cfg=mpReadLock();if(!cfg||!cfg.credentialId){mpLockMessage('Pehle Settings mein biometric/device verification enable karo');return}try{await navigator.credentials.get({publicKey:{challenge:mpRandom(32),allowCredentials:[{type:'public-key',id:mpB64Bytes(cfg.credentialId)}],userVerification:'required',timeout:60000}});mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now()}catch(e){mpLockMessage('Device verification cancel/failed. Passcode use karo.')}};
-  window.mpLockNow=function(){if(mpReadLock()&&mpReadLock().enabled){mpLockMessage('');mpLockScreen(true)}};
+  window.mpLockNow=function(){var c=mpReadLock();if(c&&c.enabled){mpLockMessage('');mpMode=c.pinLen?'unlock':'legacy';mpLockScreen(true);if(c.credentialId&&c.pinLen)setTimeout(mpLockBioUnlock,450)}};
   function mpLockRender(){var cfg=mpReadLock(),el=$('mp-lock-bio'),state=$('mp-lock-state');if(el)el.style.display=cfg&&cfg.enabled&&cfg.credentialId?'block':'none';if(state)state.innerHTML=cfg&&cfg.enabled?'<span style="color:var(--gr)">🔒 App lock ON</span>'+(cfg.credentialId?' · device verification enabled':' · passcode only'):'App lock OFF';var setup=$('mp-lock-setup-area');if(setup)setup.style.display=cfg&&cfg.enabled?'none':'block';var actions=$('mp-lock-actions');if(actions)actions.style.display=cfg&&cfg.enabled?'block':'none'}
-  window.mpLockSettings=function(){var p=$('p43');if(!p)return;var html='<div class="card"><b>🔐 App Open Lock · PIN / Password + Biometrics</b><p class="k">App khulte hi passcode gate; supported Android/Chrome devices par passkey/device verification (biometric ya device screen lock). Existing finance data keys ko change nahi karta.</p><div id="mp-lock-state" class="k" style="margin:8px 0"></div><div id="mp-lock-setup-area"><label>New PIN / Password (minimum 4 characters)</label><input id="mp-lock-new" type="password" autocomplete="new-password" maxlength="64" placeholder="New passcode"><label>Confirm PIN / Password</label><input id="mp-lock-confirm" type="password" autocomplete="new-password" maxlength="64" placeholder="Repeat passcode"><button class="btn" onclick="mpLockSetup()">Enable app lock</button></div><div id="mp-lock-actions" style="display:none"><button class="btn" onclick="mpLockBioEnable()">👆 Enable biometric / device verification</button><button class="btn" style="background:#0ea5e9" onclick="mpLockNow()">🔒 Lock now</button><button class="btn" style="background:#dc2626" onclick="mpLockRemove()">Remove app lock</button></div><p class="k">Important: PWA passcode lock is a privacy gate, not full device-level encryption. WebAuthn verification depends on browser/device support. For stronger protection use native Android Keystore + biometric APIs and encrypted local storage.</p></div>';
+  window.mpLockSettings=function(){var p=$('p43');if(!p)return;var html='<div class="card"><b>🔐 App Open Lock · PIN / Password + Biometrics</b><p class="k">App khulte hi passcode gate; supported Android/Chrome devices par passkey/device verification (biometric ya device screen lock). Existing finance data keys ko change nahi karta.</p><div id="mp-lock-state" class="k" style="margin:8px 0"></div><div id="mp-lock-setup-area"><label>Naya 4-digit PIN</label><input id="mp-lock-new" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" maxlength="4" placeholder="****"><label>PIN dobara daalo</label><input id="mp-lock-confirm" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" maxlength="4" placeholder="****"><button class="btn" onclick="mpLockSetup()">Enable app lock</button></div><div id="mp-lock-actions" style="display:none"><button class="btn" onclick="mpLockBioEnable()">👆 Enable biometric / device verification</button><button class="btn" style="background:#0ea5e9" onclick="mpLockNow()">🔒 Lock now</button><button class="btn" style="background:#dc2626" onclick="mpLockRemove()">Remove app lock</button></div><p class="k">Important: PWA passcode lock is a privacy gate, not full device-level encryption. WebAuthn verification depends on browser/device support. For stronger protection use native Android Keystore + biometric APIs and encrypted local storage.</p></div>';
     if(!$('mp-lock-state'))p.insertAdjacentHTML('beforeend',html);mpLockRender()};
 
   function mpForecastUI(){if(!$('p48'))return;var key='mp_opening_balance_'+(PA||'p1'),opening=Number(localStorage.getItem(key)||0),now=new Date(),months=[];for(var i=3;i>=1;i--){var d=new Date(now.getFullYear(),now.getMonth()-i,1),m=mpMonth(d),a=mt(m);months.push({m:m,inc:sum(a,'i'),exp:sum(a,'e'),net:sum(a,'i')-sum(a,'e')})}var avg=months.reduce(function(s,x){return s+x.net},0)/3,expAvg=months.reduce(function(s,x){return s+x.exp},0)/3,incAvg=months.reduce(function(s,x){return s+x.inc},0)/3,estimate=opening+avg;var html='<div class="card"><b>📈 Future Balance Predictor</b><p class="k">Last 3 completed months ke recorded transactions ka average. Estimate hai, guarantee nahi. Bank balance automatic sync nahi hota.</p><label>Current / opening balance (₹)</label><input id="mp-opening" type="number" value="'+opening+'"><button class="btn" onclick="mpForecastSave()">Save current balance</button><div class="g" style="margin-top:10px"><div class="card"><div class="k">Avg. monthly income</div><div class="v gr">'+f(incAvg)+'</div></div><div class="card"><div class="k">Avg. monthly expense</div><div class="v rd">'+f(expAvg)+'</div></div><div class="card"><div class="k">Avg. net cash flow</div><div class="v '+(avg>=0?'gr':'rd')+'">'+f(avg)+'</div></div><div class="card"><div class="k">Estimated next month-end</div><div class="v '+(estimate>=0?'gr':'rd')+'">'+f(estimate)+'</div></div></div><div class="k">History: '+months.map(function(x){return x.m+' ('+f(x.net)+')'}).join(' · ')+'</div></div>';$('p48').innerHTML=html}
@@ -815,8 +846,73 @@ function installMoneyPilot(){
   /* Extend the security panel after the existing UI has rendered. */
   var oldSecurity=window.securityHub;window.securityHub=function(){if(typeof oldSecurity==='function')oldSecurity();mpLockSettingsAppend();var p=$('p43');if(p&&!$('mp-vault-card'))p.insertAdjacentHTML('beforeend','<div class="card" id="mp-vault-card"><b>🗄️ Encrypted backup vault</b><p class="k">Active profile ka encrypted JSON backup AES-GCM se protect hota hai. Passphrase Money Pilot store nahi karta; agar bhool gaye to backup recover nahi hoga.</p><button class="btn" onclick="mpVaultExport()">⬇ Create encrypted backup</button><label>Restore encrypted backup</label><input type="file" accept="application/json,.json" onchange="mpVaultImport(this)"></div>')};
   /* Initial render: app lock is shown on every new app open when enabled. */
-  try{draw();var cfg=mpReadLock();if(cfg&&cfg.enabled){mpLockScreen(true);var b=$('mp-lock-bio');if(b)b.style.display=cfg.credentialId?'block':'none'}else mpLockScreen(false)}catch(e){console.error('Money Pilot upgrade initialization',e)}
-  var hiddenAt=0;document.addEventListener('visibilitychange',function(){if(document.hidden){hiddenAt=Date.now()}else if(hiddenAt&&Date.now()-hiddenAt>60000){var cfg=mpReadLock();if(cfg&&cfg.enabled)mpLockNow();hiddenAt=0}});
+
+  /* ===== V3.5 BHIM-style lock: PIN keypad + fingerprint, first-open setup ===== */
+  var mpMode='unlock',mpBuf='',mpFirst='',mpSkipped=false;
+  function mpFailKey(){return 'mp_lock_fail_'+(window.PA||'p1')}
+  function mpFailGet(){try{return JSON.parse(localStorage.getItem(mpFailKey())||'{"n":0,"until":0}')}catch(e){return {n:0,until:0}}}
+  function mpFailSet(o){try{localStorage.setItem(mpFailKey(),JSON.stringify(o))}catch(e){}}
+  function mpShow(id,on){var e=$(id);if(e)e.style.display=on?'':'none'}
+  function mpPinRender(){
+    var T={unlock:['PIN daalo','Money Pilot unlock karne ke liye 4-digit PIN'],create:['Naya PIN banao','4-digit PIN chuno. App kholte hi yeh poochha jayega'],confirm:['PIN dobara daalo','Wahi PIN confirm karo'],recovery:['Recovery set karo','PIN bhool jao to isi DOB se reset hoga'],bio:['Fingerprint unlock','PIN ke saath fingerprint/face se bhi khol sakte ho'],forgot:['PIN reset','Recovery DOB se PIN reset hoga'],legacy:['Money Pilot Locked','Purana passcode daalo. Unlock ke baad Settings me 4-digit PIN bana sakte ho']}[mpMode]||['PIN daalo',''];
+    var t=$('mp-lock-title'),st=$('mp-lock-sub');if(t)t.textContent=T[0];if(st)st.textContent=T[1];
+    var pad=(mpMode==='unlock'||mpMode==='create'||mpMode==='confirm');
+    mpShow('mp-main-pane',pad);mpShow('mp-legacy',mpMode==='legacy');mpShow('mp-forgot-box',mpMode==='forgot');mpShow('mp-bio-offer',mpMode==='bio');mpShow('mp-rec-box',mpMode==='recovery');
+    mpShow('mp-forgot-link',mpMode==='unlock'||mpMode==='legacy');mpShow('mp-skip-link',mpMode==='create'||mpMode==='confirm');
+    var d=$('mp-dots');if(d){var is=d.getElementsByTagName('i');for(var i=0;i<is.length;i++)is[i].className=i<mpBuf.length?'on':''}
+    var cfg=mpReadLock(),b=$('mp-lock-bio');if(b)b.style.display=(mpMode==='unlock'&&cfg&&cfg.enabled&&cfg.credentialId)?'block':'none';
+  }
+  function mpErr(msg){mpLockMessage(msg);var d=$('mp-dots');if(d){d.className='err';setTimeout(function(){d.className=''},450)}if(navigator.vibrate)try{navigator.vibrate(120)}catch(e){}}
+  window.mpKey=function(k){
+    var f=mpFailGet();if(mpMode==='unlock'&&f.until>Date.now()){mpErr('Bahut galat try. '+Math.ceil((f.until-Date.now())/1000)+' second baad try karo');return}
+    if(mpBuf.length>=4)return;mpBuf+=k;mpLockMessage('');mpPinRender();if(mpBuf.length===4)setTimeout(mpPinDone,120)};
+  window.mpBack=function(){mpBuf=mpBuf.slice(0,-1);mpPinRender()};
+  async function mpPinDone(){
+    var cfg=mpReadLock();
+    if(mpMode==='unlock'){
+      try{var got=await mpPassHash(mpBuf,mpB64Bytes(cfg.salt));
+        if(got===cfg.hash){mpFailSet({n:0,until:0});mpBuf='';mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now();return}
+        var f=mpFailGet();f.n=(f.n||0)+1;if(f.n>=5){f.until=Date.now()+30000*Math.min(f.n-4,10)}mpFailSet(f);
+        mpBuf='';mpPinRender();mpErr(f.until>Date.now()?'5 galat PIN. Kuch der ruko ya "PIN bhool gaye?" dabao':'Galat PIN. Dobara try karo ('+f.n+'/5)')
+      }catch(e){mpBuf='';mpPinRender();mpErr('Unlock nahi hua. Dobara try karo')}
+    }else if(mpMode==='create'){mpFirst=mpBuf;mpBuf='';mpMode='confirm';mpPinRender()}
+    else if(mpMode==='confirm'){
+      if(mpBuf!==mpFirst){mpBuf='';mpFirst='';mpMode='create';mpPinRender();mpErr('PIN match nahi hua. Dobara banao');return}
+      if(!window.crypto||!window.crypto.subtle){mpBuf='';mpMode='create';mpPinRender();mpErr('Secure PIN ke liye HTTPS chahiye');return}
+      try{var salt=mpRandom(16),hash=await mpPassHash(mpBuf,salt),old=mpReadLock()||{};
+        mpWriteLock({v:1,pinLen:4,salt:mpBytesB64(salt),hash:hash,credentialId:old.credentialId||'',enabled:true});mpBuf='';mpFirst='';mpFailSet({n:0,until:0});
+        mpMode='recovery';mpPinRender()
+      }catch(e){mpBuf='';mpFirst='';mpMode='create';mpPinRender();mpErr('PIN save nahi hua. Dobara try karo')}
+    }
+  }
+  function mpDoneSetup(){mpMode='unlock';mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now();try{toast('App lock ON 🔒')}catch(e){}if(typeof mpLockRender==='function')mpLockRender()}
+  function mpAfterRec(){if(window.PublicKeyCredential&&navigator.credentials&&navigator.credentials.create){mpMode='bio';mpPinRender()}else mpDoneSetup()}
+  window.mpRecSave=async function(){var v=($('mp-rec-dob')||{}).value,c=mpReadLock();
+    if(!v||v>mpToday()){mpLockMessage('Valid DOB chuno');return}
+    try{c.recHash=await mpPassHash('dob:'+v,mpB64Bytes(c.salt));mpWriteLock(c);mpLockMessage('');mpAfterRec()}catch(e){mpLockMessage('Save nahi hua. Dobara try karo')}};
+  window.mpRecSkip=function(){mpLockMessage('');mpAfterRec()};
+  window.mpBioOffer=async function(){try{await mpLockBioEnable()}catch(e){}mpDoneSetup()};
+  window.mpSkipBio=function(){mpDoneSetup()};
+  window.mpSkip=function(){mpSkipped=true;mpBuf='';mpFirst='';mpLockScreen(false)};
+  window.mpForgot=function(){var c=mpReadLock();mpMode='forgot';mpLockMessage('');mpPinRender()};
+  window.mpForgotBack=function(){var c=mpReadLock();mpMode=c&&c.pinLen?'unlock':'legacy';mpLockMessage('');mpPinRender()};
+  window.mpForgotGo=async function(){var v=($('mp-forgot-dob')||{}).value,c=mpReadLock(),pr=window.P,ok=false;
+    if(!v){mpErr('DOB chuno');return}
+    try{if(c&&c.recHash&&c.salt){ok=(await mpPassHash('dob:'+v,mpB64Bytes(c.salt)))===c.recHash}}catch(e){}
+    if(!ok&&pr&&pr.b&&v===pr.b)ok=true;
+    if(!c||(!c.recHash&&!(pr&&pr.b))){mpLockMessage('Recovery DOB set nahi thi. Settings > Backup se restore karo');return}
+    if(!ok){mpErr('DOB match nahi hui');return}
+    try{localStorage.removeItem(mpProfileKey());localStorage.removeItem(mpFailKey())}catch(e){}
+    mpBuf='';mpFirst='';mpMode='create';mpLockMessage('');mpPinRender()};
+  function mpLockInit(){
+    var cfg=mpReadLock();
+    if(cfg&&cfg.enabled){mpMode=cfg.pinLen?'unlock':'legacy';mpLockScreen(true);if(cfg.credentialId&&cfg.pinLen)setTimeout(mpLockBioUnlock,450)}
+    else if(!mpSkipped){mpMode='create';mpLockScreen(true)}
+    else mpLockScreen(false)}
+  var mpOrigLogin=window.login;if(typeof mpOrigLogin==='function'){window.login=function(){var r=mpOrigLogin.apply(this,arguments);setTimeout(function(){if(window.P&&!mpReadLock())mpLockInit()},400);return r}}
+  try{draw()}catch(e){console.error('Money Pilot upgrade initialization',e)}
+  mpLockInit();
+  var hiddenAt=0;document.addEventListener('visibilitychange',function(){if(document.hidden){hiddenAt=Date.now()}else if(hiddenAt&&Date.now()-hiddenAt>30000){var cfg=mpReadLock();if(cfg&&cfg.enabled)mpLockNow();hiddenAt=0}});
 })();
 </script>
 </body></html>

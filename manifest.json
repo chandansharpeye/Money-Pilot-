@@ -1,6 +1,6 @@
 {
   "id": "./",
-  "name": "Money Pilot V3 V3",
+  "name": "Money Pilot",
   "short_name": "Money Pilot",
   "description": "Offline-first personal finance super app",
   "start_url": "./index.html",

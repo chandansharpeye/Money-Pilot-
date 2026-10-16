@@ -1,4 +1,4 @@
-# Money Pilot V3.1 — Welcome Tour + Jarvis Assistant
+# Money Pilot V3.5 (based on V3.1) — Welcome Tour + Jarvis Assistant
 
 ## Included
 - Splash screen using the existing Money Pilot logo asset.
@@ -42,3 +42,14 @@ The app lock is a local privacy gate, not a security boundary against someone wh
 2. Deploy over HTTPS, then reload the PWA (if needed, close/reopen it to refresh the service worker cache).
 3. Test passcode lock, optional device verification, encrypted backup/restore with a non-critical profile, forecast opening balance, a savings challenge, SMS import using a sample message, and Jarvis voice command confirmation.
 4. Confirm existing Home, Add, Report, Scan, accounting and invoice modules still work.
+
+
+## V3.5: BHIM-style app lock
+- App khulte hi 4-digit PIN keypad (dots + number pad), BHIM jaisa.
+- Pehli baar app kholne par PIN banao, phir fingerprint/face unlock ON karne ka option.
+- Har baar app khulne par fingerprint prompt apne aap aata hai; fail ho to PIN se unlock.
+- App 30 second background me rahe to wapas aane par lock.
+- 5 galat PIN ke baad cooldown. "PIN bhool gaye?" me profile wali DOB se reset (data delete nahi hota).
+- Purana alphanumeric passcode wale users ke liye fallback password box.
+- Same storage key and PBKDF2 hash, existing data/lock settings nahi tootte.
+- Limit: yeh local privacy gate hai (browser storage level). Bank-grade security ke liye native Android Keystore chahiye.

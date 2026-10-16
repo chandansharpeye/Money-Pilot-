@@ -1,4 +1,4 @@
-const CACHE = 'money-pilot-pwa-v3.2-upgrade-pack-1';
+const CACHE = 'money-pilot-pwa-v3.5-bhim-lock';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './money-pilot-logo.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
