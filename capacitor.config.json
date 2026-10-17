@@ -2,8 +2,7 @@
   "appId": "com.moneypilot.business",
   "appName": "Money Pilot",
   "webDir": "www",
-  "server": { "androidScheme": "https" },
-  "plugins": {
-    "SplashScreen": { "launchShowDuration": 1200, "backgroundColor": "#6366f1" }
+  "server": {
+    "androidScheme": "https"
   }
 }

@@ -817,8 +817,8 @@ function installMoneyPilot(){
   window.mpLockSetup=async function(){var pass=$('mp-lock-new')&&$('mp-lock-new').value,confirmPass=$('mp-lock-confirm')&&$('mp-lock-confirm').value;if(!/^\d{4}$/.test(pass||'')){toast('Sirf 4-digit PIN daalo (sirf numbers)');return}if(pass!==confirmPass){toast('Dono passcode match nahi hue');return}if(!window.crypto||!window.crypto.subtle){toast('Secure passcode hashing ke liye HTTPS/modern browser chahiye');return}try{var salt=mpRandom(16),hash=await mpPassHash(pass,salt),old=mpReadLock()||{};mpWriteLock({v:1,pinLen:4,salt:mpBytesB64(salt),hash:hash,credentialId:old.credentialId||'',enabled:true});$('mp-lock-new').value='';$('mp-lock-confirm').value='';toast('App lock enable ho gaya 🔒');mpLockRender();mpLockScreen(false)}catch(e){toast('Lock setup nahi ho paya. HTTPS par try karo')}};
   window.mpLockRemove=async function(){var cfg=mpReadLock();if(!cfg||!cfg.enabled){toast('App lock already off hai');return}var pass=prompt('Current PIN/password daalo to app lock remove ho:');if(pass===null)return;try{var got=await mpPassHash(pass,mpB64Bytes(cfg.salt));if(got!==cfg.hash){toast('Passcode galat hai');return}localStorage.removeItem(mpProfileKey());toast('App lock off ho gaya');mpLockRender();mpLockScreen(false)}catch(e){toast('Lock remove nahi ho paya')}};
   window.mpLockUnlock=async function(){var cfg=mpReadLock();if(!cfg||!cfg.enabled){mpLockScreen(false);return}var pass=$('mp-lock-input').value||'';try{var got=await mpPassHash(pass,mpB64Bytes(cfg.salt));if(got===cfg.hash){$('mp-lock-input').value='';mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now();return}mpLockMessage('Passcode galat hai. Dobara try karo.')}catch(e){mpLockMessage('Unlock nahi hua. Passcode check karo.')}};
-  window.mpLockBioEnable=async function(){if(!window.PublicKeyCredential||!navigator.credentials||!navigator.credentials.create){toast('Is browser/device par biometric/passkey support nahi mila');return}if(location.protocol!=='https:'&&location.hostname!=='localhost'){toast('Biometric/passkey ke liye HTTPS zaroori hai');return}try{var challenge=mpRandom(32),userId=mpRandom(16),cred=await navigator.credentials.create({publicKey:{challenge:challenge,rp:{name:'Money Pilot',id:location.hostname},user:{id:userId,name:'money-pilot-local',displayName:'Money Pilot'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,attestation:'none'}});if(!cred)throw Error('No credential');var cfg=mpReadLock();if(!cfg||!cfg.enabled){toast('Pehle app passcode set karo');return}cfg.credentialId=mpBytesB64(new Uint8Array(cred.rawId));mpWriteLock(cfg);toast('Device verification enabled. Device PIN/biometric prompt aa sakta hai.');mpLockRender()}catch(e){toast('Biometric setup cancel hua ya device support nahi karta')}};
-  window.mpLockBioUnlock=async function(){var cfg=mpReadLock();if(!cfg||!cfg.credentialId){mpLockMessage('Pehle Settings mein biometric/device verification enable karo');return}try{await navigator.credentials.get({publicKey:{challenge:mpRandom(32),allowCredentials:[{type:'public-key',id:mpB64Bytes(cfg.credentialId)}],userVerification:'required',timeout:60000}});mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now()}catch(e){mpLockMessage('Device verification cancel/failed. Passcode use karo.')}};
+  window.mpLockBioEnable=async function(){var NB=window.mpNativeBio&&window.mpNativeBio();if(NB){try{var av=await NB.isAvailable();if(!av||av.isAvailable===false){toast('Phone me fingerprint/face set nahi hai. Phone Settings me add karo');return}await NB.verifyIdentity({reason:'Money Pilot unlock ON karo',title:'Money Pilot',subtitle:'Fingerprint / face se verify karo',description:''});var c0=mpReadLock();if(!c0||!c0.enabled){toast('Pehle app passcode set karo');return}c0.credentialId='native-biometric';mpWriteLock(c0);toast('Fingerprint/face unlock ON');mpLockRender();return}catch(e){toast('Biometric setup cancel hua');return}}if(!window.PublicKeyCredential||!navigator.credentials||!navigator.credentials.create){toast('Is browser/device par biometric/passkey support nahi mila');return}if(location.protocol!=='https:'&&location.hostname!=='localhost'){toast('Biometric/passkey ke liye HTTPS zaroori hai');return}try{var challenge=mpRandom(32),userId=mpRandom(16),cred=await navigator.credentials.create({publicKey:{challenge:challenge,rp:{name:'Money Pilot',id:location.hostname},user:{id:userId,name:'money-pilot-local',displayName:'Money Pilot'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,attestation:'none'}});if(!cred)throw Error('No credential');var cfg=mpReadLock();if(!cfg||!cfg.enabled){toast('Pehle app passcode set karo');return}cfg.credentialId=mpBytesB64(new Uint8Array(cred.rawId));mpWriteLock(cfg);toast('Device verification enabled. Device PIN/biometric prompt aa sakta hai.');mpLockRender()}catch(e){toast('Biometric setup cancel hua ya device support nahi karta')}};
+  window.mpLockBioUnlock=async function(){var NB=window.mpNativeBio&&window.mpNativeBio(),c1=mpReadLock();if(NB&&c1&&c1.credentialId==='native-biometric'){try{await NB.verifyIdentity({reason:'Money Pilot kholne ke liye verify karo',title:'Money Pilot',subtitle:'Fingerprint / face',description:''});mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now()}catch(e){mpLockMessage('Verification cancel/failed. PIN use karo.')}return}var cfg=mpReadLock();if(!cfg||!cfg.credentialId){mpLockMessage('Pehle Settings mein biometric/device verification enable karo');return}try{await navigator.credentials.get({publicKey:{challenge:mpRandom(32),allowCredentials:[{type:'public-key',id:mpB64Bytes(cfg.credentialId)}],userVerification:'required',timeout:60000}});mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now()}catch(e){mpLockMessage('Device verification cancel/failed. Passcode use karo.')}};
   window.mpLockNow=function(){var c=mpReadLock();if(c&&c.enabled){mpLockMessage('');mpMode=c.pinLen?'unlock':'legacy';mpLockScreen(true);if(c.credentialId&&c.pinLen)setTimeout(mpLockBioUnlock,450)}};
   function mpLockRender(){var cfg=mpReadLock(),el=$('mp-lock-bio'),state=$('mp-lock-state');if(el)el.style.display=cfg&&cfg.enabled&&cfg.credentialId?'block':'none';if(state)state.innerHTML=cfg&&cfg.enabled?'<span style="color:var(--gr)">🔒 App lock ON</span>'+(cfg.credentialId?' · device verification enabled':' · passcode only'):'App lock OFF';var setup=$('mp-lock-setup-area');if(setup)setup.style.display=cfg&&cfg.enabled?'none':'block';var actions=$('mp-lock-actions');if(actions)actions.style.display=cfg&&cfg.enabled?'block':'none'}
   window.mpLockSettings=function(){var p=$('p43');if(!p)return;var html='<div class="card"><b>🔐 App Open Lock · PIN / Password + Biometrics</b><p class="k">App khulte hi passcode gate; supported Android/Chrome devices par passkey/device verification (biometric ya device screen lock). Existing finance data keys ko change nahi karta.</p><div id="mp-lock-state" class="k" style="margin:8px 0"></div><div id="mp-lock-setup-area"><label>Naya 4-digit PIN</label><input id="mp-lock-new" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" maxlength="4" placeholder="****"><label>PIN dobara daalo</label><input id="mp-lock-confirm" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="new-password" maxlength="4" placeholder="****"><button class="btn" onclick="mpLockSetup()">Enable app lock</button></div><div id="mp-lock-actions" style="display:none"><button class="btn" onclick="mpLockBioEnable()">👆 Enable biometric / device verification</button><button class="btn" style="background:#0ea5e9" onclick="mpLockNow()">🔒 Lock now</button><button class="btn" style="background:#dc2626" onclick="mpLockRemove()">Remove app lock</button></div><p class="k">Important: PWA passcode lock is a privacy gate, not full device-level encryption. WebAuthn verification depends on browser/device support. For stronger protection use native Android Keystore + biometric APIs and encrypted local storage.</p></div>';
@@ -888,7 +888,7 @@ function installMoneyPilot(){
     }
   }
   function mpDoneSetup(){mpMode='unlock';mpLockMessage('');mpLockScreen(false);window.__mpUnlockedAt=Date.now();try{toast('App lock ON 🔒')}catch(e){}if(typeof mpLockRender==='function')mpLockRender()}
-  function mpAfterRec(){if(window.PublicKeyCredential&&navigator.credentials&&navigator.credentials.create){mpMode='bio';mpPinRender()}else mpDoneSetup()}
+  function mpAfterRec(){if((window.mpNativeBio&&window.mpNativeBio())||(window.PublicKeyCredential&&navigator.credentials&&navigator.credentials.create)){mpMode='bio';mpPinRender()}else mpDoneSetup()}
   window.mpRecSave=async function(){var v=($('mp-rec-dob')||{}).value,c=mpReadLock();
     if(!v||v>mpToday()){mpLockMessage('Valid DOB chuno');return}
     try{c.recHash=await mpPassHash('dob:'+v,mpB64Bytes(c.salt));mpWriteLock(c);mpLockMessage('');mpAfterRec()}catch(e){mpLockMessage('Save nahi hua. Dobara try karo')}};
@@ -1623,6 +1623,52 @@ function installMoneyPilot(){
     h+='<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'+(st.closed?'<button class="btn sm" style="background:#64748b" onclick="mpAcctReopen()">Dobara kholo</button>':'<button class="btn sm" onclick="mpAcctClose()">\u2705 Month close karo</button>')+'<button class="btn sm" onclick="mpAcctShare()">\ud83d\udcac Summary WhatsApp</button><button class="btn sm" onclick="go(58)">\ud83d\udce4 CA Export</button></div></div>';
     p.innerHTML=h;
   };
+})();
+</script>
+<script>
+/* ===== V3.5 Android APK (Capacitor) bridge: file save/share, back button, biometric hook ===== */
+(function(){
+  'use strict';
+  var C=window.Capacitor;
+  function native(){try{return !!(C&&C.isNativePlatform&&C.isNativePlatform())}catch(e){return false}}
+  function plug(n){try{return (native()&&C.Plugins&&C.Plugins[n])||null}catch(e){return null}}
+  window.mpIsNative=native;
+  window.mpNativeBio=function(){return plug('NativeBiometric')};
+  if(!native())return;
+  function tmsg(m){try{if(typeof window.toast==='function')window.toast(m)}catch(e){}}
+  function blobToB64(b){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(String(r.result).split(',')[1]||'')};r.onerror=function(){rej(r.error)};r.readAsDataURL(b)})}
+
+  /* Android WebView cannot download blob: links, so every <a download> goes through Filesystem + Share sheet */
+  var origClick=HTMLAnchorElement.prototype.click;
+  async function nativeSave(href,name){
+    var FS=plug('Filesystem'),SH=plug('Share');
+    if(!FS||!SH){tmsg('File save ke liye native plugin nahi mila');return}
+    try{
+      var r=await fetch(href),b=await r.blob(),clean=String(name||'money-pilot-file').replace(/[^\w.\- ]+/g,'_');
+      var w=await FS.writeFile({path:clean,data:await blobToB64(b),directory:'CACHE',recursive:true});
+      await SH.share({title:clean,files:[w.uri],dialogTitle:'File save / share karo'});
+    }catch(e){var m=String((e&&(e.message||e))||'');if(!/cancel|dismiss/i.test(m))tmsg('File save nahi hui: '+m.slice(0,60))}
+  }
+  HTMLAnchorElement.prototype.click=function(){
+    var a=this;
+    try{if(a.hasAttribute('download')&&/^(blob:|data:)/.test(a.href)){nativeSave(a.href,a.getAttribute('download'));return}}catch(e){}
+    return origClick.apply(this,arguments);
+  };
+
+  /* Android back button: close menu -> go Home -> exit */
+  var App=plug('App');
+  if(App&&App.addListener){
+    App.addListener('backButton',function(){
+      try{
+        var lk=document.getElementById('mp-lock-screen');
+        if(lk&&getComputedStyle(lk).display!=='none'){if(App.minimizeApp)App.minimizeApp();else App.exitApp();return}
+        var mn=document.getElementById('mn');
+        if(mn&&mn.className.indexOf('hide')<0){window.menu();return}
+        if(window.tab&&window.tab!==0){window.go(0);return}
+      }catch(e){}
+      App.exitApp();
+    });
+  }
 })();
 </script>
 </body></html>

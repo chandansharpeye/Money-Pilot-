@@ -98,3 +98,34 @@ Reminders page (Bill / payment reminders) me naya "Notifications" card:
 - **Bug fix:** Copy buttons (UPI link, WhatsApp fallback) ab clipboard permission na milne par bhi error nahi dete, text-copy ka fallback chalta hai aur sahi message dikhta hai.
 - **Tested (headless browser):** sabhi 62 tabs dono modes (Business/Student) me khulte hain; asli forms se entry, income, udhaar, stock, cash book, invoice (GST ke saath) bane; stock alerts (kam stock, expiry paas, expire ho chuka) aur notification queue; party statement aur WhatsApp reminder; UPI QR ko QR decoder se verify kiya; global search; Undo/Trash; IndexedDB copy; PIN lock; 115 buttons ki click-through me 0 JS error.
 - **Test nahi ho paya (phone par check karna):** fingerprint/face unlock, asli notification sound, share sheet, aur PDF/Excel download (jsPDF/SheetJS internet se load hote hain).
+
+
+## V3.5: Android APK (Capacitor)
+APK banane ke 2 tareeke. Dono me web app wahi `index.html` hai.
+
+### Tareeka 1: GitHub se (PC ya Android Studio ki zaroorat nahi)
+1. Is zip ki saari files apni GitHub repo me upload karo (hidden folder `.github` bhi, wo workflow ke liye zaroori hai).
+2. GitHub me **Actions** tab > **Build Android APK** > **Run workflow**. (Main/master branch par push karne se bhi apne aap chalta hai.)
+3. 5-10 minute baad run khulkar neeche **Artifacts** se `Money-Pilot-APK` download karo, zip me `app-debug.apk` hai.
+4. APK phone me bhejo, install karte waqt "Unknown sources / Install unknown apps" allow karo.
+
+### Tareeka 2: apne computer par
+Node 20+, JDK 21 aur Android Studio chahiye.
+```
+npm install
+npm install @capgo/capacitor-native-biometric@^7   # optional: fingerprint/face unlock
+npm run android:add
+npm run android:sync
+npm run android:open     # Android Studio me Build > Build APK
+```
+
+### APK me kya alag hai
+- **Notifications:** exact time par local notification, app band ho tab bhi (Android permission allow karni hogi).
+- **Backup/PDF/Excel save:** Android share sheet khulta hai (Drive, WhatsApp, Files me save). Browser jaisa direct download WebView me nahi chalta.
+- **Fingerprint/face unlock:** native plugin se chalta hai. Agar plugin install nahi hua to sirf PIN chalega.
+- **Back button:** menu band, phir Home, phir app se bahar.
+- Debug APK sirf install/test ke liye hai. Play Store ke liye release keystore se signed build alag banana hoga.
+
+### APK bridge: kya test hua
+Capacitor ka nakli (mock) runtime lagakar browser me test kiya: backup/QR file Filesystem + share sheet se nikalti hai, back button (menu -> Home -> exit), fingerprint setup aur auto-unlock (fail hone par PIN fallback), aur notifications ka permission + channel + schedule sab sahi chale. Normal web version bhi bina native ke pehle jaisa chalta hai.
+**Asli APK build aur phone par chalna maine test nahi kiya** (yahan Android SDK/internet nahi hai). GitHub workflow me koi galti aaye to error ka text bhej do.
