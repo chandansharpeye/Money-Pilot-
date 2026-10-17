@@ -80,3 +80,21 @@ Reminders page (Bill / payment reminders) me naya "Notifications" card:
 - **Trash + Undo:** koi bhi delete (entry, bill, loan, goal, customer, stock...) 30 din tak Trash me rehta hai. Delete ke baad 7 second ka Undo button aata hai.
 - **Naya Menu:** search box, "Haal hi me" list, aur 7 saaf groups. Pehle chhupe hue tools (Study Timer, Homework, Finance Hub, Search) bhi ab dikhte hain.
 - Limit: automatic copy usi browser me rehti hai, "Clear site data" se ye bhi ud sakti hai. Isliye haftawari backup file bahar rakho.
+
+
+## V3.5: 2 main tabs + naye business features + fixes
+- **2 main tabs:** Business aur Student. Har tab me numbered sections (1, 2, 3...) aur unke sub-features. Pehli baar app khulne par poochta hai, baad me upar se badal sakte ho. Home, Settings aur search (🔎) dono tabs me common.
+- **Naye business features:** 💸 UPI Collect (QR + payment link + invoice PDF par QR), 📄 Party Statement (PDF + WhatsApp reminder 1st/2nd/final), 🚨 Stock Alerts (kam stock + expiry, notification ke saath).
+- **Fixes (V3.1 ke purane bug):** Accounting Cycle, Finance Hub, AI Business Analyst aur Barcode/Outstanding/Inventory/Bank/Audit/Sync/CA tabs galat ya khaali page dikha rahe the. Study Timer aur Homework khaali dikhte the. PDF, Excel aur backup download standalone app me save nahi ho rahe the.
+- **AI features:** Scan screenshot, AI insights aur Doubt Solver online AI server (Claude) maangte hain, jo is app me connect nahi hai. Ye features tab tak band rahenge jab tak Cloudflare Worker se jode na jayein (`worker.js` repo me hai).
+
+## V3.5 final testing round
+- **Startup bug fix:** `LG` (language) kabhi declare nahi tha, isliye app start ke beech me toot jata tha aur galat amount jaise messages me error aata tha. Ab language `localStorage` se load hoti hai (Hinglish/English/Hindi/Odia).
+- **Accounting Cycle page ab chalta hai:** month-end closing checklist (7 steps), income/kharch/munafa, lena-dena, stock value, supplier payable, "Month close karo" aur WhatsApp summary. Pehle ye tab khaali tha.
+- **Test coverage:** sabhi 62 tabs khulte hain, har page ke buttons dabakar JS errors check kiye, UPI QR ko QR decoder se verify kiya, party reminders, stock alerts, invoice PDF QR, PIN lock, notifications, Trash/Undo, IndexedDB recovery aur student flows test hue.
+- **Test nahi ho paya (phone par check karna):** fingerprint/face unlock, asli notification sound, share sheet, aur PDF/Excel libraries (internet chahiye, CDN se load hoti hain).
+
+## V3.5 final verification (is round)
+- **Bug fix:** Copy buttons (UPI link, WhatsApp fallback) ab clipboard permission na milne par bhi error nahi dete, text-copy ka fallback chalta hai aur sahi message dikhta hai.
+- **Tested (headless browser):** sabhi 62 tabs dono modes (Business/Student) me khulte hain; asli forms se entry, income, udhaar, stock, cash book, invoice (GST ke saath) bane; stock alerts (kam stock, expiry paas, expire ho chuka) aur notification queue; party statement aur WhatsApp reminder; UPI QR ko QR decoder se verify kiya; global search; Undo/Trash; IndexedDB copy; PIN lock; 115 buttons ki click-through me 0 JS error.
+- **Test nahi ho paya (phone par check karna):** fingerprint/face unlock, asli notification sound, share sheet, aur PDF/Excel download (jsPDF/SheetJS internet se load hote hain).
